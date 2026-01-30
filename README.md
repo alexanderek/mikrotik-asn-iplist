@@ -12,6 +12,13 @@ Automated generation of MikroTik RouterOS v7.x firewall address-list entries fro
 - Policy is managed by the `resources` list inside each loader.
 - Each resource maps to a single `dist/<resource>.rsc`.
 
+## Migration
+
+- Previously there was a per-resource loader script.
+- Now use `routeros/loader_eu.rsc` and `routeros/loader_ru.rsc` only.
+- Policy is controlled by membership in each loader’s `resources` list.
+- `dist/<resource>.rsc` is parameterized via `$AddressList`.
+
 ## Quick start
 
 ```bash

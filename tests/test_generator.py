@@ -10,13 +10,13 @@ from generator import core as gen_core
 from generator.core import GeneratorError, RIPESTAT_URL, generate_resource
 
 
-def _write_resource(base_dir: Path, asns=None) -> None:
+def _write_resource(base_dir: Path, asns=None, resource_id: str = "cloudflare") -> None:
     resources = base_dir / "resources"
     resources.mkdir(parents=True, exist_ok=True)
     if asns is None:
         asns = ["AS13335"]
-    (resources / "cloudflare.yaml").write_text(
-        "resource_id: cloudflare\n"
+    (resources / f"{resource_id}.yaml").write_text(
+        f"resource_id: {resource_id}\n"
         "asns:\n"
         + "\n".join([f"  - {asn}" for asn in asns])
         + "\n"
@@ -258,3 +258,48 @@ def test_self_check_blocks_bad_rsc(tmp_path: Path, monkeypatch: pytest.MonkeyPat
         generate_resource("cloudflare", tmp_path)
 
     assert target.read_text() == "OLD"
+
+
+@responses.activate
+@pytest.mark.parametrize(
+    "resource_id,asn",
+    [
+        ("cloudflare", "AS13335"),
+        ("digitalocean", "AS14061"),
+        ("hetzner", "AS24940"),
+        ("ovh", "AS16276"),
+        ("oracle", "AS31898"),
+        ("aws", "AS16509"),
+        ("googlecloud", "AS396982"),
+        ("fastly", "AS54113"),
+        ("akamai_us", "AS16625"),
+        ("akamai_pl", "AS20940"),
+        ("cdn77", "AS60068"),
+        ("contabo", "AS51167"),
+        ("scaleway", "AS12876"),
+        ("constant", "AS20473"),
+    ],
+)
+def test_generated_rsc_has_remove_first_and_addresslist(
+    tmp_path: Path, resource_id: str, asn: str
+) -> None:
+    _write_resource(tmp_path, asns=[asn], resource_id=resource_id)
+
+    responses.add(
+        responses.GET,
+        RIPESTAT_URL,
+        json={"data": {"prefixes": [{"prefix": "1.2.3.0/24"}]}},
+        status=200,
+        match=[responses.matchers.query_param_matcher({"resource": asn})],
+    )
+
+    path = generate_resource(resource_id, tmp_path)
+    lines = path.read_text().splitlines()
+    first_non_comment = next(line for line in lines if line and not line.startswith("#"))
+    assert (
+        first_non_comment
+        == f'/ip/firewall/address-list remove [find where comment="iplist:auto:{resource_id}"]'
+    )
+    add_lines = [line for line in lines if line.startswith("/ip/firewall/address-list add ")]
+    assert add_lines
+    assert all("list=$AddressList" in line for line in add_lines)
