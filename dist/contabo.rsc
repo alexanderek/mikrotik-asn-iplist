@@ -1,6 +1,6 @@
 # iplist-rsc v1
 # resource=contabo
-# generated=2026-01-30T14:13:20.885182Z
+# generated=2026-01-30T14:53:22.755154Z
 # count=565
 
 /ip/firewall/address-list remove [find where comment="iplist:auto:contabo"]

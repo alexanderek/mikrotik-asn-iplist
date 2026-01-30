@@ -1,6 +1,6 @@
 # iplist-rsc v1
 # resource=cloudflare
-# generated=2026-01-30T14:13:19.407956Z
+# generated=2026-01-30T14:53:21.199233Z
 # count=15
 
 /ip/firewall/address-list remove [find where comment="iplist:auto:cloudflare"]

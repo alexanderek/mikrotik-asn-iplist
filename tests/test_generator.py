@@ -505,6 +505,25 @@ def test_google_cloud_json_empty_ipv4_fails_and_preserves_dist(tmp_path: Path) -
 
 
 @responses.activate
+def test_generated_rsc_has_no_cr(tmp_path: Path) -> None:
+    _write_resource(tmp_path)
+    dist = tmp_path / "dist"
+    dist.mkdir(parents=True, exist_ok=True)
+
+    responses.add(
+        responses.GET,
+        RIPESTAT_URL,
+        json={"data": {"prefixes": [{"prefix": "1.1.1.0/24"}]}},
+        status=200,
+        match=[responses.matchers.query_param_matcher({"resource": "AS13335"})],
+    )
+
+    path = generate_resource("cloudflare", tmp_path)
+    data = path.read_bytes()
+    assert b"\r" not in data
+
+
+@responses.activate
 def test_fastly_public_ip_list_success_ipv4_only(tmp_path: Path) -> None:
     _write_url_resource(
         tmp_path,

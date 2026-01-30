@@ -1,6 +1,6 @@
 # iplist-rsc v1
 # resource=scaleway
-# generated=2026-01-30T14:13:28.241679Z
+# generated=2026-01-30T14:53:33.128706Z
 # count=21
 
 /ip/firewall/address-list remove [find where comment="iplist:auto:scaleway"]

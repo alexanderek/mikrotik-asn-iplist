@@ -1,6 +1,6 @@
 # iplist-rsc v1
 # resource=aws
-# generated=2026-01-30T14:13:18.756698Z
+# generated=2026-01-30T14:53:20.524925Z
 # count=7362
 
 /ip/firewall/address-list remove [find where comment="iplist:auto:aws"]

@@ -487,12 +487,14 @@ def generate_resource(resource_id: str, base_dir: Path, allow_cache: bool = Fals
 
     networks = _dedup_sort(_normalize_ipv4(all_prefixes))
     contents = _render_rsc(resource, networks)
+    contents = contents.replace("\r\n", "\n").replace("\r", "\n")
 
     tmp_path = dist_dir / f"{resource_id}.rsc.tmp"
     final_path = dist_dir / f"{resource_id}.rsc"
 
     try:
-        tmp_path.write_text(contents)
+        with open(tmp_path, "w", encoding="utf-8", newline="\n") as fh:
+            fh.write(contents)
         _self_check_rsc(resource, tmp_path.read_text())
         os.replace(tmp_path, final_path)
     except Exception as exc:
