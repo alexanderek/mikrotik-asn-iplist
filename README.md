@@ -62,4 +62,4 @@ python -m generator generate --all --collapse=shadowed
 pytest
 ```
 
-Optional: --collapse=shadowed removes redundant subnets fully covered by larger prefixes.
+Optional: --collapse=shadowed removes redundant subnets fully covered by larger prefixes (default: shadowed).

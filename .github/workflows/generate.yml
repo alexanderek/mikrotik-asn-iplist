@@ -38,7 +38,7 @@ jobs:
         run: pytest
 
       - name: Generate dist
-        run: python -m generator generate --all
+        run: python -m generator generate --all --collapse=shadowed
 
       - name: Print dist counts
         run: |

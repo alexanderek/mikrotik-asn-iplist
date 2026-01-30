@@ -34,8 +34,8 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     gen.add_argument(
         "--collapse",
         choices=["none", "shadowed"],
-        default="none",
-        help="optional prefix collapse mode",
+        default="shadowed",
+        help="optional prefix collapse mode (default: shadowed)",
     )
 
     return parser.parse_args(argv)

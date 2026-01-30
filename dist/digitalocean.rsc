@@ -1,7 +1,7 @@
 # iplist-rsc v1
 # resource=digitalocean
-# generated=2026-01-30T17:19:30.655025Z
-# count=833
+# generated=2026-01-30T17:33:07.150613Z
+# count=832
 
 :global AddressList
 /ip/firewall/address-list add list=$AddressList address=5.101.96.0/21 comment="iplist:auto:digitalocean"
@@ -105,7 +105,6 @@
 /ip/firewall/address-list add list=$AddressList address=68.183.248.0/22 comment="iplist:auto:digitalocean"
 /ip/firewall/address-list add list=$AddressList address=68.183.252.0/22 comment="iplist:auto:digitalocean"
 /ip/firewall/address-list add list=$AddressList address=69.55.48.0/22 comment="iplist:auto:digitalocean"
-/ip/firewall/address-list add list=$AddressList address=69.55.49.0/24 comment="iplist:auto:digitalocean"
 /ip/firewall/address-list add list=$AddressList address=69.55.54.0/24 comment="iplist:auto:digitalocean"
 /ip/firewall/address-list add list=$AddressList address=69.55.55.0/24 comment="iplist:auto:digitalocean"
 /ip/firewall/address-list add list=$AddressList address=69.55.58.0/23 comment="iplist:auto:digitalocean"

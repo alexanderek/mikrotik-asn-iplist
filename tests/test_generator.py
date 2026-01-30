@@ -276,7 +276,7 @@ def test_ipv6_excluded(tmp_path: Path) -> None:
         match=[responses.matchers.query_param_matcher({"resource": "AS13335"})],
     )
 
-    path = generate_resource("cloudflare", tmp_path)
+    path = generate_resource("cloudflare", tmp_path, collapse="shadowed")
     add_lines = [line for line in _read_add_lines(path) if line.endswith('"iplist:auto:cloudflare"')]
 
     assert len(add_lines) == 1
@@ -357,7 +357,7 @@ def test_plain_cidr_success_ignores_comments(tmp_path: Path) -> None:
         status=200,
     )
 
-    path = generate_resource("cloudflare", tmp_path)
+    path = generate_resource("cloudflare", tmp_path, collapse="shadowed")
     add_lines = [line for line in _read_add_lines(path) if line.startswith("/ip/firewall/address-list add")]
 
     assert len(add_lines) == 2
@@ -377,7 +377,7 @@ def test_plain_cidr_ipv6_filtered(tmp_path: Path) -> None:
         status=200,
     )
 
-    path = generate_resource("cloudflare", tmp_path)
+    path = generate_resource("cloudflare", tmp_path, collapse="shadowed")
     add_lines = [line for line in _read_add_lines(path) if line.startswith("/ip/firewall/address-list add")]
 
     assert len(add_lines) == 1
@@ -553,6 +553,31 @@ def test_collapse_none_no_change(tmp_path: Path) -> None:
     lines = path.read_text().splitlines()
     add_lines = [line for line in lines if line.startswith("/ip/firewall/address-list add ")]
     assert len(add_lines) == 2
+
+
+@responses.activate
+def test_collapse_default_is_shadowed(tmp_path: Path) -> None:
+    _write_resource(tmp_path)
+    responses.add(
+        responses.GET,
+        RIPESTAT_URL,
+        json={
+            "data": {
+                "prefixes": [
+                    {"prefix": "149.154.160.0/22"},
+                    {"prefix": "149.154.160.0/23"},
+                    {"prefix": "149.154.162.0/23"},
+                ]
+            }
+        },
+        status=200,
+        match=[responses.matchers.query_param_matcher({"resource": "AS13335"})],
+    )
+
+    path = generate_resource("cloudflare", tmp_path, collapse="shadowed")
+    lines = path.read_text().splitlines()
+    add_lines = [line for line in lines if line.startswith("/ip/firewall/address-list add ")]
+    assert len(add_lines) == 1
 
 
 @responses.activate

@@ -1,7 +1,7 @@
 # iplist-rsc v1
 # resource=contabo
-# generated=2026-01-30T17:19:30.339942Z
-# count=565
+# generated=2026-01-30T17:33:06.825305Z
+# count=563
 
 :global AddressList
 /ip/firewall/address-list add list=$AddressList address=2.58.80.0/23 comment="iplist:auto:contabo"
@@ -120,8 +120,6 @@
 /ip/firewall/address-list add list=$AddressList address=79.143.186.0/23 comment="iplist:auto:contabo"
 /ip/firewall/address-list add list=$AddressList address=79.143.188.0/23 comment="iplist:auto:contabo"
 /ip/firewall/address-list add list=$AddressList address=79.143.190.0/23 comment="iplist:auto:contabo"
-/ip/firewall/address-list add list=$AddressList address=79.143.190.0/24 comment="iplist:auto:contabo"
-/ip/firewall/address-list add list=$AddressList address=79.143.191.0/24 comment="iplist:auto:contabo"
 /ip/firewall/address-list add list=$AddressList address=80.65.211.0/24 comment="iplist:auto:contabo"
 /ip/firewall/address-list add list=$AddressList address=80.190.80.0/21 comment="iplist:auto:contabo"
 /ip/firewall/address-list add list=$AddressList address=80.241.208.0/23 comment="iplist:auto:contabo"
