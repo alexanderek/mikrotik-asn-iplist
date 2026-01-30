@@ -6,11 +6,8 @@ import pytest
 import requests
 import responses
 
-from generator.core import (
-    GeneratorError,
-    RIPESTAT_URL,
-    generate_resource,
-)
+from generator import core as gen_core
+from generator.core import GeneratorError, RIPESTAT_URL, generate_resource
 
 
 def _write_resource(base_dir: Path, asns=None) -> None:
@@ -23,7 +20,6 @@ def _write_resource(base_dir: Path, asns=None) -> None:
         "asns:\n"
         + "\n".join([f"  - {asn}" for asn in asns])
         + "\n"
-        "target_list: blacklist_eu\n"
     )
 
 
@@ -173,6 +169,7 @@ def test_ipv6_excluded(tmp_path: Path) -> None:
 
     assert len(add_lines) == 1
     assert "address=1.1.1.0/24" in add_lines[0]
+    assert "list=$AddressList" in add_lines[0]
 
 
 @responses.activate
@@ -203,6 +200,7 @@ def test_dedup_and_order(tmp_path: Path) -> None:
     assert "address=1.1.1.0/24" in add_lines[0]
     assert "address=1.1.1.0/25" in add_lines[1]
     assert "address=1.1.2.0/24" in add_lines[2]
+    assert all("list=$AddressList" in line for line in add_lines)
 
 
 @responses.activate
@@ -225,3 +223,38 @@ def test_first_non_comment_is_remove(tmp_path: Path) -> None:
         first_non_comment
         == '/ip/firewall/address-list remove [find where comment="iplist:auto:cloudflare"]'
     )
+
+
+@responses.activate
+def test_self_check_blocks_bad_rsc(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    _write_resource(tmp_path)
+    dist = tmp_path / "dist"
+    dist.mkdir(parents=True, exist_ok=True)
+    target = dist / "cloudflare.rsc"
+    target.write_text("OLD")
+
+    responses.add(
+        responses.GET,
+        RIPESTAT_URL,
+        json={"data": {"prefixes": [{"prefix": "1.1.1.0/24"}]}},
+        status=200,
+        match=[responses.matchers.query_param_matcher({"resource": "AS13335"})],
+    )
+
+    def _bad_render(resource, networks) -> str:
+        return (
+            "# iplist-rsc v1\n"
+            "# resource=cloudflare\n"
+            "# generated=2026-01-30T00:00:00Z\n"
+            "# count=2\n"
+            "\n"
+            "/ip/firewall/address-list add list=blacklist_eu address=1.1.1.0/24 "
+            "comment=\"iplist:auto:cloudflare\"\n"
+        )
+
+    monkeypatch.setattr(gen_core, "_render_rsc", _bad_render)
+
+    with pytest.raises(GeneratorError):
+        generate_resource("cloudflare", tmp_path)
+
+    assert target.read_text() == "OLD"

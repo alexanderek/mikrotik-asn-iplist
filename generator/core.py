@@ -19,7 +19,6 @@ DEFAULT_TIMEOUT = 10
 class ResourceConfig:
     resource_id: str
     asns: List[str]
-    target_list: str
 
 
 class GeneratorError(RuntimeError):
@@ -41,16 +40,12 @@ def load_resource_config(path: Path) -> ResourceConfig:
 
     resource_id = data.get("resource_id")
     asns = data.get("asns")
-    target_list = data.get("target_list")
 
     if not resource_id or not isinstance(resource_id, str):
         raise GeneratorError(f"invalid resource_id in {path}")
     if not asns or not isinstance(asns, list) or not all(isinstance(a, str) for a in asns):
         raise GeneratorError(f"invalid asns list in {path}")
-    if not target_list or not isinstance(target_list, str):
-        raise GeneratorError(f"invalid target_list in {path}")
-
-    return ResourceConfig(resource_id=resource_id, asns=asns, target_list=target_list)
+    return ResourceConfig(resource_id=resource_id, asns=asns)
 
 
 def _fetch_json(url: str, params: dict) -> dict:
@@ -122,10 +117,46 @@ def _render_rsc(resource: ResourceConfig, networks: List[ipaddress.IPv4Network])
     lines = [remove_line]
     for net in networks:
         lines.append(
-            f"/ip/firewall/address-list add list={resource.target_list} address={net} "
+            f"/ip/firewall/address-list add list=$AddressList address={net} "
             f"comment=\"iplist:auto:{resource.resource_id}\""
         )
     return "\n".join(header + lines) + "\n"
+
+
+def _self_check_rsc(resource: ResourceConfig, contents: str) -> None:
+    remove_line = (
+        f"/ip/firewall/address-list remove [find where comment=\"iplist:auto:{resource.resource_id}\"]"
+    )
+    if remove_line not in contents:
+        raise GeneratorError("self-check failed: remove line missing")
+
+    lines = contents.splitlines()
+    first_non_comment = next(
+        (line for line in lines if line and not line.startswith("#")),
+        None,
+    )
+    if first_non_comment != remove_line:
+        raise GeneratorError("self-check failed: remove line not first command")
+
+    count_line = next((line for line in lines if line.startswith("# count=")), None)
+    if not count_line:
+        raise GeneratorError("self-check failed: count header missing")
+    try:
+        expected_count = int(count_line.split("=", 1)[1].strip())
+    except ValueError as exc:
+        raise GeneratorError("self-check failed: count header invalid") from exc
+
+    add_lines = [
+        line for line in lines if line.startswith("/ip/firewall/address-list add ")
+    ]
+    for line in add_lines:
+        if "list=$AddressList" not in line:
+            raise GeneratorError("self-check failed: add line missing $AddressList")
+    add_count = len(add_lines)
+    if add_count < 1:
+        raise GeneratorError("self-check failed: add_count < 1")
+    if add_count != expected_count:
+        raise GeneratorError("self-check failed: count header mismatch")
 
 
 def generate_resource(resource_id: str, base_dir: Path) -> Path:
@@ -153,6 +184,7 @@ def generate_resource(resource_id: str, base_dir: Path) -> Path:
 
     try:
         tmp_path.write_text(contents)
+        _self_check_rsc(resource, tmp_path.read_text())
         os.replace(tmp_path, final_path)
     except Exception as exc:
         if tmp_path.exists():
