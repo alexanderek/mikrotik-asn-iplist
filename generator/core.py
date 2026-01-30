@@ -291,6 +291,9 @@ def fetch_prefixes_for_url(
             raise GeneratorError("304 received but cache is missing")
 
         if resp.status_code != 200:
+            if allow_cache and data_path.exists():
+                payload = json.loads(data_path.read_text())
+                return _extract_aws_prefixes(payload)
             raise GeneratorError(f"non-200 from {resource.url}: {resp.status_code}")
         try:
             payload = resp.json()
@@ -316,6 +319,8 @@ def fetch_prefixes_for_url(
                 return _extract_plain_cidr(data_path.read_text())
             raise GeneratorError("304 received but cache is missing")
         if resp.status_code != 200:
+            if allow_cache and data_path.exists():
+                return _extract_plain_cidr(data_path.read_text())
             raise GeneratorError(f"non-200 from {resource.url}: {resp.status_code}")
         text = resp.text
         _write_cache(data_path, text)
@@ -340,6 +345,9 @@ def fetch_prefixes_for_url(
                 return _extract_json_prefix_list(payload)
             raise GeneratorError("304 received but cache is missing")
         if resp.status_code != 200:
+            if allow_cache and data_path.exists():
+                payload = json.loads(data_path.read_text())
+                return _extract_json_prefix_list(payload)
             raise GeneratorError(f"non-200 from {resource.url}: {resp.status_code}")
         try:
             payload = resp.json()
@@ -367,6 +375,9 @@ def fetch_prefixes_for_url(
                 return _extract_google_cloud_prefixes(payload)
             raise GeneratorError("304 received but cache is missing")
         if resp.status_code != 200:
+            if allow_cache and data_path.exists():
+                payload = json.loads(data_path.read_text())
+                return _extract_google_cloud_prefixes(payload)
             raise GeneratorError(f"non-200 from {resource.url}: {resp.status_code}")
         try:
             payload = resp.json()
@@ -394,6 +405,9 @@ def fetch_prefixes_for_url(
                 return _extract_fastly_prefixes(payload)
             raise GeneratorError("304 received but cache is missing")
         if resp.status_code != 200:
+            if allow_cache and data_path.exists():
+                payload = json.loads(data_path.read_text())
+                return _extract_fastly_prefixes(payload)
             raise GeneratorError(f"non-200 from {resource.url}: {resp.status_code}")
         try:
             payload = resp.json()
@@ -428,6 +442,8 @@ def _self_check_rsc(resource: ResourceConfig, contents: str) -> None:
     lines = contents.splitlines()
     if ":global AddressList" not in lines:
         raise GeneratorError("self-check failed: AddressList missing")
+    if any("/ip/firewall/address-list remove" in line for line in lines):
+        raise GeneratorError("self-check failed: remove line present")
 
     count_line = next((line for line in lines if line.startswith("# count=")), None)
     if not count_line:

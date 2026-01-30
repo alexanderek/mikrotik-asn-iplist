@@ -676,6 +676,28 @@ def test_url_no_cache_fails(tmp_path: Path) -> None:
 
 
 @responses.activate
+def test_url_non_200_uses_cache_when_allowed(tmp_path: Path) -> None:
+    _write_url_resource(
+        tmp_path, resource_id="fastly", url="https://example.com/fastly.json", feed_format="fastly_public_ip_list_json"
+    )
+    cache_dir = tmp_path / "cache"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    (cache_dir / "fastly.json").write_text(
+        '{\"addresses\":[\"23.235.32.0/20\"],\"ipv6_addresses\":[\"2a04:4e42::/32\"]}'
+    )
+
+    responses.add(
+        responses.GET,
+        "https://example.com/fastly.json",
+        status=403,
+    )
+
+    path = generate_resource("fastly", tmp_path, allow_cache=True)
+    add_lines = [line for line in _read_add_lines(path) if line.startswith("/ip/firewall/address-list add")]
+    assert len(add_lines) == 1
+
+
+@responses.activate
 def test_dedup_and_order(tmp_path: Path) -> None:
     _write_resource(tmp_path)
 
@@ -797,6 +819,8 @@ def test_generated_rsc_has_addresslist_and_no_remove(
     lines = path.read_text().splitlines()
     first_non_comment = next(line for line in lines if line and not line.startswith("#"))
     assert first_non_comment == ":global AddressList"
+    count_line = next(line for line in lines if line.startswith("# count="))
+    assert int(count_line.split("=", 1)[1].strip()) > 0
     add_lines = [line for line in lines if line.startswith("/ip/firewall/address-list add ")]
     assert add_lines
     assert all("list=$AddressList" in line for line in add_lines)

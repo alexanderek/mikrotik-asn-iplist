@@ -1,0 +1,4 @@
+resource_id: telegram
+source_type: asn
+asns:
+  - AS62041
