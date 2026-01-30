@@ -1,9 +1,9 @@
 # iplist-rsc v1
 # resource=aws
-# generated=2026-01-30T14:53:20.524925Z
+# generated=2026-01-30T15:42:49.658358Z
 # count=7362
 
-/ip/firewall/address-list remove [find where comment="iplist:auto:aws"]
+:global AddressList
 /ip/firewall/address-list add list=$AddressList address=1.178.1.0/24 comment="iplist:auto:aws"
 /ip/firewall/address-list add list=$AddressList address=1.178.4.0/24 comment="iplist:auto:aws"
 /ip/firewall/address-list add list=$AddressList address=1.178.5.0/24 comment="iplist:auto:aws"

@@ -415,10 +415,7 @@ def _render_rsc(resource: ResourceConfig, networks: List[ipaddress.IPv4Network])
         f"# count={len(networks)}",
         "",
     ]
-    remove_line = (
-        f"/ip/firewall/address-list remove [find where comment=\"iplist:auto:{resource.resource_id}\"]"
-    )
-    lines = [remove_line]
+    lines = [":global AddressList"]
     for net in networks:
         lines.append(
             f"/ip/firewall/address-list add list=$AddressList address={net} "
@@ -428,19 +425,9 @@ def _render_rsc(resource: ResourceConfig, networks: List[ipaddress.IPv4Network])
 
 
 def _self_check_rsc(resource: ResourceConfig, contents: str) -> None:
-    remove_line = (
-        f"/ip/firewall/address-list remove [find where comment=\"iplist:auto:{resource.resource_id}\"]"
-    )
-    if remove_line not in contents:
-        raise GeneratorError("self-check failed: remove line missing")
-
     lines = contents.splitlines()
-    first_non_comment = next(
-        (line for line in lines if line and not line.startswith("#")),
-        None,
-    )
-    if first_non_comment != remove_line:
-        raise GeneratorError("self-check failed: remove line not first command")
+    if ":global AddressList" not in lines:
+        raise GeneratorError("self-check failed: AddressList missing")
 
     count_line = next((line for line in lines if line.startswith("# count=")), None)
     if not count_line:
@@ -456,6 +443,8 @@ def _self_check_rsc(resource: ResourceConfig, contents: str) -> None:
     for line in add_lines:
         if "list=$AddressList" not in line:
             raise GeneratorError("self-check failed: add line missing $AddressList")
+        if f"comment=\"iplist:auto:{resource.resource_id}\"" not in line:
+            raise GeneratorError("self-check failed: add line missing comment tag")
     add_count = len(add_lines)
     if add_count < 1:
         raise GeneratorError("self-check failed: add_count < 1")

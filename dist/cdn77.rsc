@@ -1,9 +1,9 @@
 # iplist-rsc v1
 # resource=cdn77
-# generated=2026-01-30T14:53:20.851855Z
+# generated=2026-01-30T15:42:50.029119Z
 # count=383
 
-/ip/firewall/address-list remove [find where comment="iplist:auto:cdn77"]
+:global AddressList
 /ip/firewall/address-list add list=$AddressList address=37.19.194.0/24 comment="iplist:auto:cdn77"
 /ip/firewall/address-list add list=$AddressList address=37.19.202.0/24 comment="iplist:auto:cdn77"
 /ip/firewall/address-list add list=$AddressList address=37.19.203.0/24 comment="iplist:auto:cdn77"

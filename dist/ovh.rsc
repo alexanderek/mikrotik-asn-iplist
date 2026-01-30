@@ -1,9 +1,9 @@
 # iplist-rsc v1
 # resource=ovh
-# generated=2026-01-30T14:53:29.031960Z
+# generated=2026-01-30T15:43:13.898123Z
 # count=616
 
-/ip/firewall/address-list remove [find where comment="iplist:auto:ovh"]
+:global AddressList
 /ip/firewall/address-list add list=$AddressList address=5.39.0.0/17 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=5.83.153.0/24 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=5.135.0.0/16 comment="iplist:auto:ovh"

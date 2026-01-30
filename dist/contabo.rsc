@@ -1,9 +1,9 @@
 # iplist-rsc v1
 # resource=contabo
-# generated=2026-01-30T14:53:22.755154Z
+# generated=2026-01-30T15:42:59.574976Z
 # count=565
 
-/ip/firewall/address-list remove [find where comment="iplist:auto:contabo"]
+:global AddressList
 /ip/firewall/address-list add list=$AddressList address=2.58.80.0/23 comment="iplist:auto:contabo"
 /ip/firewall/address-list add list=$AddressList address=2.58.82.0/24 comment="iplist:auto:contabo"
 /ip/firewall/address-list add list=$AddressList address=2.58.83.0/24 comment="iplist:auto:contabo"

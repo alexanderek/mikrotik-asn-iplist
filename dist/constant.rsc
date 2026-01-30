@@ -1,9 +1,9 @@
 # iplist-rsc v1
 # resource=constant
-# generated=2026-01-30T14:53:22.388236Z
+# generated=2026-01-30T15:42:59.245082Z
 # count=1422
 
-/ip/firewall/address-list remove [find where comment="iplist:auto:constant"]
+:global AddressList
 /ip/firewall/address-list add list=$AddressList address=5.102.112.0/24 comment="iplist:auto:constant"
 /ip/firewall/address-list add list=$AddressList address=5.102.113.0/24 comment="iplist:auto:constant"
 /ip/firewall/address-list add list=$AddressList address=5.102.114.0/24 comment="iplist:auto:constant"

@@ -1,9 +1,9 @@
 # iplist-rsc v1
 # resource=scaleway
-# generated=2026-01-30T14:53:33.128706Z
+# generated=2026-01-30T15:43:14.686918Z
 # count=21
 
-/ip/firewall/address-list remove [find where comment="iplist:auto:scaleway"]
+:global AddressList
 /ip/firewall/address-list add list=$AddressList address=51.15.0.0/16 comment="iplist:auto:scaleway"
 /ip/firewall/address-list add list=$AddressList address=51.15.0.0/17 comment="iplist:auto:scaleway"
 /ip/firewall/address-list add list=$AddressList address=51.158.0.0/15 comment="iplist:auto:scaleway"

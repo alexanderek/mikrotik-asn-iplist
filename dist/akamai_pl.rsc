@@ -1,9 +1,9 @@
 # iplist-rsc v1
 # resource=akamai_pl
-# generated=2026-01-30T14:53:18.160312Z
+# generated=2026-01-30T15:42:45.917411Z
 # count=3963
 
-/ip/firewall/address-list remove [find where comment="iplist:auto:akamai_pl"]
+:global AddressList
 /ip/firewall/address-list add list=$AddressList address=2.16.0.0/13 comment="iplist:auto:akamai_pl"
 /ip/firewall/address-list add list=$AddressList address=2.16.0.0/24 comment="iplist:auto:akamai_pl"
 /ip/firewall/address-list add list=$AddressList address=2.16.1.0/24 comment="iplist:auto:akamai_pl"

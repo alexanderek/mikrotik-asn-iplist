@@ -1,8 +1,12 @@
 # RouterOS v7 loader for iplist resources (EU)
 # Update URL after repository publish.
 
-:global AddressList "blacklist_eu"
-:global resources { cloudflare; }
+:local listName "blacklist_eu"
+:global resources {
+  "cloudflare";
+}
+
+:log info ("iplist: start loader list=" . $listName . " resources=" . [:len $resources])
 
 :if ([:len $resources] = 0) do={
   :log info "iplist: no resources configured for EU"
@@ -13,6 +17,7 @@
 
 :foreach resource in=$resources do={
   :do {
+    :log info ("iplist: fetching resource=" . $resource)
     :local url ("https://raw.githubusercontent.com/REPLACE_USER/MikroTik_ASN_IPList/main/dist/" . $resource . ".rsc")
     :local tmpFile ("iplist_" . $resource . ".rsc.tmp")
 
@@ -40,14 +45,24 @@
       :error "resource mismatch"
     }
 
-    :local removeLine ("/ip/firewall/address-list remove [find where comment=\"iplist:auto:" . $resource . "\"]")
-    :if ([:find $contents $removeLine] = nil) do={
-      :log warning ("iplist: remove line missing for " . $resource)
-      :error "remove line missing"
+    :if ([:find $contents ":global AddressList"] = nil) do={
+      :log warning ("iplist: AddressList missing for " . $resource)
+      :error "AddressList missing"
     }
 
+    :log info ("iplist: removing old entries resource=" . $resource)
+    :local tag ("iplist:auto:" . $resource)
+    :foreach i in=[/ip/firewall/address-list find] do={
+      :if ([/ip/firewall/address-list get $i comment] = $tag) do={
+        /ip/firewall/address-list remove $i
+      }
+    }
+
+    :log info ("iplist: importing resource=" . $resource . " size=" . $size)
+    :global AddressList $listName
     /import file-name=$tmpFile
     /file remove $tmpFile
+    :log info ("iplist: loaded resource=" . $resource)
   } on-error={
     :log warning ("iplist: skipped resource due to error: " . $resource)
   }

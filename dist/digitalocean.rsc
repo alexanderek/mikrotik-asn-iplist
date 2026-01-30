@@ -1,9 +1,9 @@
 # iplist-rsc v1
 # resource=digitalocean
-# generated=2026-01-30T14:53:23.119863Z
+# generated=2026-01-30T15:42:59.927637Z
 # count=833
 
-/ip/firewall/address-list remove [find where comment="iplist:auto:digitalocean"]
+:global AddressList
 /ip/firewall/address-list add list=$AddressList address=5.101.96.0/21 comment="iplist:auto:digitalocean"
 /ip/firewall/address-list add list=$AddressList address=5.101.104.0/22 comment="iplist:auto:digitalocean"
 /ip/firewall/address-list add list=$AddressList address=5.101.108.0/24 comment="iplist:auto:digitalocean"

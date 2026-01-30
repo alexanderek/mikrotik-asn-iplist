@@ -1,9 +1,9 @@
 # iplist-rsc v1
 # resource=oracle
-# generated=2026-01-30T14:53:28.691777Z
+# generated=2026-01-30T15:43:09.300228Z
 # count=2036
 
-/ip/firewall/address-list remove [find where comment="iplist:auto:oracle"]
+:global AddressList
 /ip/firewall/address-list add list=$AddressList address=5.226.187.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=23.172.248.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=23.173.184.0/24 comment="iplist:auto:oracle"

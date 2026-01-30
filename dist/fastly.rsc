@@ -1,9 +1,9 @@
 # iplist-rsc v1
 # resource=fastly
-# generated=2026-01-30T14:53:27.510911Z
+# generated=2026-01-30T15:43:04.321361Z
 # count=19
 
-/ip/firewall/address-list remove [find where comment="iplist:auto:fastly"]
+:global AddressList
 /ip/firewall/address-list add list=$AddressList address=23.235.32.0/20 comment="iplist:auto:fastly"
 /ip/firewall/address-list add list=$AddressList address=43.249.72.0/22 comment="iplist:auto:fastly"
 /ip/firewall/address-list add list=$AddressList address=103.244.50.0/24 comment="iplist:auto:fastly"

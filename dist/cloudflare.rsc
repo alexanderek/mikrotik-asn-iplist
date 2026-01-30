@@ -1,9 +1,9 @@
 # iplist-rsc v1
 # resource=cloudflare
-# generated=2026-01-30T14:53:21.199233Z
+# generated=2026-01-30T15:42:54.095877Z
 # count=15
 
-/ip/firewall/address-list remove [find where comment="iplist:auto:cloudflare"]
+:global AddressList
 /ip/firewall/address-list add list=$AddressList address=103.21.244.0/22 comment="iplist:auto:cloudflare"
 /ip/firewall/address-list add list=$AddressList address=103.22.200.0/22 comment="iplist:auto:cloudflare"
 /ip/firewall/address-list add list=$AddressList address=103.31.4.0/22 comment="iplist:auto:cloudflare"

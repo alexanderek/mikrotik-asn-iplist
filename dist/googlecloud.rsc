@@ -1,9 +1,9 @@
 # iplist-rsc v1
 # resource=googlecloud
-# generated=2026-01-30T14:53:27.851801Z
+# generated=2026-01-30T15:43:04.643578Z
 # count=824
 
-/ip/firewall/address-list remove [find where comment="iplist:auto:googlecloud"]
+:global AddressList
 /ip/firewall/address-list add list=$AddressList address=8.34.208.0/23 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=8.34.210.0/24 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=8.34.211.0/24 comment="iplist:auto:googlecloud"

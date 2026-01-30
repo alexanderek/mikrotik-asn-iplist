@@ -707,7 +707,7 @@ def test_dedup_and_order(tmp_path: Path) -> None:
 
 
 @responses.activate
-def test_first_non_comment_is_remove(tmp_path: Path) -> None:
+def test_first_non_comment_is_global_addresslist(tmp_path: Path) -> None:
     _write_resource(tmp_path)
 
     responses.add(
@@ -722,10 +722,7 @@ def test_first_non_comment_is_remove(tmp_path: Path) -> None:
     lines = path.read_text().splitlines()
     first_non_comment = next(line for line in lines if line and not line.startswith("#"))
 
-    assert (
-        first_non_comment
-        == '/ip/firewall/address-list remove [find where comment="iplist:auto:cloudflare"]'
-    )
+    assert first_non_comment == ":global AddressList"
 
 
 @responses.activate
@@ -783,7 +780,7 @@ def test_self_check_blocks_bad_rsc(tmp_path: Path, monkeypatch: pytest.MonkeyPat
         ("constant", "AS20473"),
     ],
 )
-def test_generated_rsc_has_remove_first_and_addresslist(
+def test_generated_rsc_has_addresslist_and_no_remove(
     tmp_path: Path, resource_id: str, asn: str
 ) -> None:
     _write_resource(tmp_path, asns=[asn], resource_id=resource_id)
@@ -799,10 +796,9 @@ def test_generated_rsc_has_remove_first_and_addresslist(
     path = generate_resource(resource_id, tmp_path)
     lines = path.read_text().splitlines()
     first_non_comment = next(line for line in lines if line and not line.startswith("#"))
-    assert (
-        first_non_comment
-        == f'/ip/firewall/address-list remove [find where comment="iplist:auto:{resource_id}"]'
-    )
+    assert first_non_comment == ":global AddressList"
     add_lines = [line for line in lines if line.startswith("/ip/firewall/address-list add ")]
     assert add_lines
     assert all("list=$AddressList" in line for line in add_lines)
+    assert all(f'comment="iplist:auto:{resource_id}"' in line for line in add_lines)
+    assert all("/ip/firewall/address-list remove" not in line for line in lines)

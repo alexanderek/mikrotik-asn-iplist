@@ -1,9 +1,9 @@
 # iplist-rsc v1
 # resource=hetzner
-# generated=2026-01-30T14:53:28.152544Z
+# generated=2026-01-30T15:43:04.949649Z
 # count=83
 
-/ip/firewall/address-list remove [find where comment="iplist:auto:hetzner"]
+:global AddressList
 /ip/firewall/address-list add list=$AddressList address=5.9.0.0/16 comment="iplist:auto:hetzner"
 /ip/firewall/address-list add list=$AddressList address=5.75.128.0/17 comment="iplist:auto:hetzner"
 /ip/firewall/address-list add list=$AddressList address=23.88.0.0/17 comment="iplist:auto:hetzner"
