@@ -1,4 +1,4 @@
 resource_id: cloudflare
-source_type: asn
-asns:
-  - AS13335
+source_type: url
+url: https://www.cloudflare.com/ips-v4
+format: plain_cidr

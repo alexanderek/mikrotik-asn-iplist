@@ -149,7 +149,12 @@ def _extract_plain_cidr(text: str) -> List[str]:
         line = line.strip()
         if not line or line.startswith("#"):
             continue
-        prefixes.append(line)
+        try:
+            net = ipaddress.ip_network(line, strict=False)
+        except ValueError as exc:
+            raise GeneratorError("malformed CIDR in plain_cidr feed") from exc
+        if net.version == 4:
+            prefixes.append(line)
     if not prefixes:
         raise GeneratorError("empty prefixes")
     return prefixes

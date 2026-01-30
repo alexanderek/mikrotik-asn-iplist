@@ -1,6 +1,6 @@
 # iplist-rsc v1
 # resource=ovh
-# generated=2026-01-30T13:30:36.559369Z
+# generated=2026-01-30T13:55:44.075032Z
 # count=616
 
 /ip/firewall/address-list remove [find where comment="iplist:auto:ovh"]

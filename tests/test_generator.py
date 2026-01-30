@@ -330,6 +330,98 @@ def test_url_retries_then_success(tmp_path: Path) -> None:
     assert "address=3.5.140.0/22" in add_lines[0]
 
 
+@responses.activate
+def test_plain_cidr_success_ignores_comments(tmp_path: Path) -> None:
+    _write_url_resource(
+        tmp_path, resource_id="cloudflare", url="https://example.com/cf.txt", feed_format="plain_cidr"
+    )
+
+    responses.add(
+        responses.GET,
+        "https://example.com/cf.txt",
+        body=(
+            "# comment\n"
+            "\n"
+            "1.1.1.0/24\n"
+            "# another\n"
+            "1.0.0.0/24\n"
+        ),
+        status=200,
+    )
+
+    path = generate_resource("cloudflare", tmp_path)
+    add_lines = [line for line in _read_add_lines(path) if line.startswith("/ip/firewall/address-list add")]
+
+    assert len(add_lines) == 2
+    assert all("list=$AddressList" in line for line in add_lines)
+
+
+@responses.activate
+def test_plain_cidr_ipv6_filtered(tmp_path: Path) -> None:
+    _write_url_resource(
+        tmp_path, resource_id="cloudflare", url="https://example.com/cf.txt", feed_format="plain_cidr"
+    )
+
+    responses.add(
+        responses.GET,
+        "https://example.com/cf.txt",
+        body="2606:4700::/32\n1.1.1.0/24\n",
+        status=200,
+    )
+
+    path = generate_resource("cloudflare", tmp_path)
+    add_lines = [line for line in _read_add_lines(path) if line.startswith("/ip/firewall/address-list add")]
+
+    assert len(add_lines) == 1
+    assert "address=1.1.1.0/24" in add_lines[0]
+
+
+@responses.activate
+def test_plain_cidr_empty_fails_and_preserves_dist(tmp_path: Path) -> None:
+    _write_url_resource(
+        tmp_path, resource_id="cloudflare", url="https://example.com/cf.txt", feed_format="plain_cidr"
+    )
+    dist = tmp_path / "dist"
+    dist.mkdir(parents=True, exist_ok=True)
+    target = dist / "cloudflare.rsc"
+    target.write_text("OLD")
+
+    responses.add(
+        responses.GET,
+        "https://example.com/cf.txt",
+        body="# only comments\n# another\n",
+        status=200,
+    )
+
+    with pytest.raises(GeneratorError):
+        generate_resource("cloudflare", tmp_path)
+
+    assert target.read_text() == "OLD"
+
+
+@responses.activate
+def test_plain_cidr_malformed_line_fails(tmp_path: Path) -> None:
+    _write_url_resource(
+        tmp_path, resource_id="cloudflare", url="https://example.com/cf.txt", feed_format="plain_cidr"
+    )
+    dist = tmp_path / "dist"
+    dist.mkdir(parents=True, exist_ok=True)
+    target = dist / "cloudflare.rsc"
+    target.write_text("OLD")
+
+    responses.add(
+        responses.GET,
+        "https://example.com/cf.txt",
+        body="1.1.1.0/24\nnot-a-cidr\n",
+        status=200,
+    )
+
+    with pytest.raises(GeneratorError):
+        generate_resource("cloudflare", tmp_path)
+
+    assert target.read_text() == "OLD"
+
+
 def test_url_allow_cache_fallback(tmp_path: Path) -> None:
     _write_url_resource(
         tmp_path, resource_id="aws", url="https://example.com/aws.json", feed_format="aws_ip_ranges_json"

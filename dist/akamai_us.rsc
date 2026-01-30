@@ -1,6 +1,6 @@
 # iplist-rsc v1
 # resource=akamai_us
-# generated=2026-01-30T13:45:54.074371Z
+# generated=2026-01-30T13:54:54.480687Z
 # count=2951
 
 /ip/firewall/address-list remove [find where comment="iplist:auto:akamai_us"]
