@@ -57,6 +57,9 @@ pip install -r requirements.txt -r requirements-dev.txt
 
 python -m generator generate --resource cloudflare
 python -m generator generate --all
+python -m generator generate --all --collapse=shadowed
 
 pytest
 ```
+
+Optional: --collapse=shadowed removes redundant subnets fully covered by larger prefixes.

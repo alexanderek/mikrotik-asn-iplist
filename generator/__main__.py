@@ -31,6 +31,12 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         action="store_true",
         help="allow using cached URL responses on non-200/timeout (stale)",
     )
+    gen.add_argument(
+        "--collapse",
+        choices=["none", "shadowed"],
+        default="none",
+        help="optional prefix collapse mode",
+    )
 
     return parser.parse_args(argv)
 
@@ -51,6 +57,7 @@ def main(argv: list[str]) -> int:
                     base_dir,
                     allow_cache=args.allow_cache,
                     allow_stale_cache=args.allow_stale_cache,
+                    collapse=args.collapse,
                 )
             else:
                 generate_resource(
@@ -58,6 +65,7 @@ def main(argv: list[str]) -> int:
                     base_dir,
                     allow_cache=args.allow_cache,
                     allow_stale_cache=args.allow_stale_cache,
+                    collapse=args.collapse,
                 )
             if args.allow_stale_cache and stale_cache_used():
                 print("CACHE_STALE_USED=true")

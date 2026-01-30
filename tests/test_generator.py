@@ -1,13 +1,21 @@
 from __future__ import annotations
 
 from pathlib import Path
+import ipaddress
 
 import pytest
 import requests
 import responses
 
 from generator import core as gen_core
-from generator.core import GeneratorError, RIPESTAT_URL, generate_resource, reset_stale_cache_used, stale_cache_used
+from generator.core import (
+    GeneratorError,
+    RIPESTAT_URL,
+    collapse_shadowed,
+    generate_resource,
+    reset_stale_cache_used,
+    stale_cache_used,
+)
 
 
 def _write_resource(base_dir: Path, asns=None, resource_id: str = "cloudflare") -> None:
@@ -502,6 +510,74 @@ def test_google_cloud_json_empty_ipv4_fails_and_preserves_dist(tmp_path: Path) -
         generate_resource("googlecloud", tmp_path)
 
     assert target.read_text() == "OLD"
+
+
+def test_collapse_shadowed_removes_subnets() -> None:
+    nets = [
+        ipaddress.ip_network("149.154.160.0/22"),
+        ipaddress.ip_network("149.154.160.0/23"),
+        ipaddress.ip_network("149.154.162.0/23"),
+    ]
+    collapsed = collapse_shadowed(nets)
+    assert collapsed == [ipaddress.ip_network("149.154.160.0/22")]
+
+
+def test_collapse_shadowed_keeps_when_no_supernet() -> None:
+    nets = [
+        ipaddress.ip_network("149.154.160.0/23"),
+        ipaddress.ip_network("149.154.162.0/23"),
+    ]
+    collapsed = collapse_shadowed(nets)
+    assert collapsed == sorted(nets, key=lambda n: (int(n.network_address), n.prefixlen))
+
+
+@responses.activate
+def test_collapse_none_no_change(tmp_path: Path) -> None:
+    _write_resource(tmp_path)
+    responses.add(
+        responses.GET,
+        RIPESTAT_URL,
+        json={
+            "data": {
+                "prefixes": [
+                    {"prefix": "149.154.160.0/22"},
+                    {"prefix": "149.154.160.0/23"},
+                ]
+            }
+        },
+        status=200,
+        match=[responses.matchers.query_param_matcher({"resource": "AS13335"})],
+    )
+
+    path = generate_resource("cloudflare", tmp_path, collapse="none")
+    lines = path.read_text().splitlines()
+    add_lines = [line for line in lines if line.startswith("/ip/firewall/address-list add ")]
+    assert len(add_lines) == 2
+
+
+@responses.activate
+def test_count_header_matches_add_lines_with_shadowed(tmp_path: Path) -> None:
+    _write_resource(tmp_path)
+    responses.add(
+        responses.GET,
+        RIPESTAT_URL,
+        json={
+            "data": {
+                "prefixes": [
+                    {"prefix": "10.0.0.0/8"},
+                    {"prefix": "10.1.0.0/16"},
+                ]
+            }
+        },
+        status=200,
+        match=[responses.matchers.query_param_matcher({"resource": "AS13335"})],
+    )
+
+    path = generate_resource("cloudflare", tmp_path, collapse="shadowed")
+    lines = path.read_text().splitlines()
+    count_line = next(line for line in lines if line.startswith("# count="))
+    add_lines = [line for line in lines if line.startswith("/ip/firewall/address-list add ")]
+    assert int(count_line.split("=", 1)[1].strip()) == len(add_lines)
 
 
 @responses.activate

@@ -264,6 +264,21 @@ def _dedup_sort(networks: Iterable[ipaddress.IPv4Network]) -> List[ipaddress.IPv
     return sorted(uniq.values(), key=lambda n: (int(n.network_address), n.prefixlen))
 
 
+def collapse_shadowed(networks: List[ipaddress.IPv4Network]) -> List[ipaddress.IPv4Network]:
+    accepted: List[ipaddress.IPv4Network] = []
+    accepted_set: set[ipaddress.IPv4Network] = set()
+    for net in sorted(networks, key=lambda n: (n.prefixlen, int(n.network_address))):
+        shadowed = False
+        for plen in range(net.prefixlen - 1, -1, -1):
+            if net.supernet(new_prefix=plen) in accepted_set:
+                shadowed = True
+                break
+        if not shadowed:
+            accepted.append(net)
+            accepted_set.add(net)
+    return sorted(accepted, key=lambda n: (int(n.network_address), n.prefixlen))
+
+
 def analyze_shadowed_prefixes(
     networks: Iterable[ipaddress.IPv4Network],
 ) -> tuple[int, dict[str, int]]:
@@ -517,6 +532,7 @@ def generate_resource(
     base_dir: Path,
     allow_cache: bool = False,
     allow_stale_cache: bool = False,
+    collapse: str = "none",
 ) -> Path:
     resources_dir = base_dir / "resources"
     dist_dir = base_dir / "dist"
@@ -540,6 +556,8 @@ def generate_resource(
         all_prefixes.extend(fetch_prefixes_for_url(resource, base_dir, allow_cache, allow_stale_cache))
 
     networks = _dedup_sort(_normalize_ipv4(all_prefixes))
+    if collapse == "shadowed":
+        networks = collapse_shadowed(networks)
     contents = _render_rsc(resource, networks)
     contents = contents.replace("\r\n", "\n").replace("\r", "\n")
 
@@ -563,6 +581,7 @@ def generate_all(
     base_dir: Path,
     allow_cache: bool = False,
     allow_stale_cache: bool = False,
+    collapse: str = "none",
 ) -> List[Path]:
     resources_dir = base_dir / "resources"
     if not resources_dir.exists():
@@ -571,6 +590,14 @@ def generate_all(
     results = []
     for path in sorted(resources_dir.glob("*.yaml")):
         resource = load_resource_config(path)
-        results.append(generate_resource(resource.resource_id, base_dir, allow_cache, allow_stale_cache))
+        results.append(
+            generate_resource(
+                resource.resource_id,
+                base_dir,
+                allow_cache,
+                allow_stale_cache,
+                collapse,
+            )
+        )
 
     return results
