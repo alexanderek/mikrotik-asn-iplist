@@ -2,7 +2,7 @@
 # Update URL after repository publish.
 
 :global AddressList "blacklist_ru"
-:global resources { }
+:global resources { cloudflare; digitalocean; hetzner; ovh; oracle; aws; googlecloud; fastly; akamai_us; akamai_pl; cdn77; contabo; scaleway; constant; }
 
 :if ([:len $resources] = 0) do={
   :log info "iplist: no resources configured for RU"
@@ -14,7 +14,7 @@
 :foreach resource in=$resources do={
   :do {
     :local url ("https://raw.githubusercontent.com/REPLACE_USER/MikroTik_ASN_IPList/main/dist/" . $resource . ".rsc")
-    :local tmpFile ("iplist_" . $resource . ".rsc")
+    :local tmpFile ("iplist_" . $resource . ".rsc.tmp")
 
     /tool fetch url=$url mode=https dst-path=$tmpFile keep-result=yes
 
@@ -47,6 +47,7 @@
     }
 
     /import file-name=$tmpFile
+    /file remove $tmpFile
   } on-error={
     :log warning ("iplist: skipped resource due to error: " . $resource)
   }
