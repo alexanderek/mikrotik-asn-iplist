@@ -1,68 +1,75 @@
 # MikroTik_ASN_IPList
 
-Automated generation of MikroTik RouterOS v7.x firewall address-list entries from ASN announced IPv4 prefixes.
+IPv4 address-list files for MikroTik RouterOS v7. Use the loader scripts to fetch and import lists from `dist/`.
 
-- Source of truth: `generator/`
-- Output: `dist/*.rsc`
-- RouterOS loader scripts: `routeros/loader_eu.rsc`, `routeros/loader_ru.rsc`
+## What is this
 
-## RouterOS loaders
+- `dist/*.rsc` — ready-to-import address-list files (one resource per file).
+- `routeros/loader_eu.rsc` and `routeros/loader_ru.rsc` — the only policy point on the router.
 
-- Use `routeros/loader_eu.rsc` and `routeros/loader_ru.rsc`.
-- Policy is managed by the `resources` list inside each loader.
-- Each resource maps to a single `dist/<resource>.rsc`.
-- To enable a provider, add its `resource_id` to the resources list in the desired loader (EU/RU). By default loaders can be shipped with empty lists.
+## What you need on MikroTik
 
-## Migration
+1. Upload and schedule **one** loader (`routeros/loader_eu.rsc` or `routeros/loader_ru.rsc`).
+2. Edit the loader:
+   - `listName` — target address-list name (e.g. `blacklist_eu` / `blacklist_ru`).
+   - `resources` — list of enabled providers (resource_id strings).
 
-- Previously there was a per-resource loader script.
-- Now use `routeros/loader_eu.rsc` and `routeros/loader_ru.rsc` only.
-- Policy is controlled by membership in each loader’s `resources` list.
-- `dist/<resource>.rsc` is parameterized via `$AddressList`.
+Example scheduler:
 
-## Official feeds
-
-- Example: Cloudflare IPv4 feed.
-- URL: https://www.cloudflare.com/ips-v4
-- Format: plain CIDR per line.
-- Parsing: IPv4 only; IPv6 ignored; malformed line => fail-hard.
-- Example: Google Cloud feed.
-- URL: https://www.gstatic.com/ipranges/cloud.json
-- Format: JSON prefixes[], use ipv4Prefix (IPv4 only; ignore ipv6Prefix).
-- Parsing: fail-hard on malformed/empty result.
-- Example: Fastly public IP list.
-- URL: https://api.fastly.com/public-ip-list
-- Format: JSON addresses[] (IPv4 only; ignore ipv6_addresses).
-- Parsing: fail-hard on malformed/empty result.
-- Example: Telegram CIDR list.
-- URL: https://core.telegram.org/resources/cidr.txt
-- Format: plain CIDR per line (IPv4 only).
-
-## Loader logging
-
-- Example start: `iplist: event=start scope=EU list=blacklist_eu resources_count=1 runId=2026-01-30 15:00:00`
-- Example fetch: `iplist: event=fetch scope=EU list=blacklist_eu resource=cloudflare url=... runId=...`
-- Example import_ok: `iplist: event=import_ok scope=EU list=blacklist_eu resource=cloudflare bytes=1234 total=15 runId=...`
-
-## Audit snapshot (local)
-
-- Cache policy: allow-cache only on HTTP 304; non-200/timeout fail hard; allow-stale-cache explicitly logs `event=cache_stale_used`.
-- Telegram (ASN): shadowed_count=4, mismatch_rate=0/10 (RIPEstat sample).
-- Meta (ASN): shadowed_count=177, mismatch_rate=0/20 (RIPEstat sample).
-- Twitter (ASN): shadowed_count=23, mismatch_rate=0/20 (RIPEstat sample).
-
-## Quick start
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt -r requirements-dev.txt
-
-python -m generator generate --resource cloudflare
-python -m generator generate --all
-python -m generator generate --all --collapse=shadowed
-
-pytest
+```routeros
+/system/scheduler
+add name=iplist_auto_ru interval=1w on-event="/system script run loader_ru"
 ```
 
-Optional: --collapse=shadowed removes redundant subnets fully covered by larger prefixes (default: shadowed).
+## How loaders work (high-level)
+
+- Fetch `dist/<resource>.rsc` from GitHub raw.
+- Validate file and metadata.
+- Remove old entries for that resource (by comment tag).
+- Import the new file.
+- Clean up temp file.
+
+## Configuring resources
+
+The place to enable/disable providers is the loader’s `resources` list:
+
+```routeros
+:global resources {
+  "cloudflare";
+  "fastly";
+  "googlecloud";
+  "aws"
+}
+```
+
+Each resource maps to exactly one `dist/<resource>.rsc`.
+
+## Data sources (official vs ASN)
+
+- Official provider feeds are preferred (Cloudflare, Google Cloud, AWS, Telegram, etc.).
+- ASN/BGP sources are used only when no official feed exists or coverage is insufficient.
+- ASN/BGP is fallback, not default.
+
+## Guarantees & limitations
+
+- IPv4 only.
+- Fail-hard on bad source data (non-200, malformed, empty) — old lists stay in place.
+- Default `collapse=shadowed`: removes only fully-covered subnets (no aggressive aggregation).
+- One resource = one `.rsc` file; loaders decide which resources to apply.
+
+## For developers (optional)
+
+- Generator is the source of truth for `dist/`.
+- Cache policy:
+  - `--allow-cache` uses cache **only** on HTTP 304.
+  - Stale cache requires `--allow-stale-cache` and is explicitly logged.
+- Collapse mode:
+  - `--collapse=shadowed` (default) or `--collapse=none`.
+
+Common commands:
+
+```bash
+python -m generator generate --all --allow-cache
+python -m generator generate --all --collapse=none --allow-cache
+pytest -q
+```
