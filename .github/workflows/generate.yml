@@ -40,6 +40,15 @@ jobs:
       - name: Generate dist
         run: python -m generator generate --all
 
+      - name: Print dist counts
+        run: |
+          for f in dist/*.rsc; do
+            resource=$(basename "$f" .rsc)
+            count=$(grep -m1 '^# count=' "$f" | sed 's/# count=//')
+            bytes=$(wc -c < "$f" | tr -d ' ')
+            echo "$resource count=$count bytes=$bytes"
+          done
+
       - name: Commit dist
         run: |
           if [ -z "$(git status --porcelain dist)" ]; then

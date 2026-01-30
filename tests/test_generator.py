@@ -304,6 +304,80 @@ def test_url_aws_json_success(tmp_path: Path) -> None:
 
 
 @responses.activate
+def test_url_retries_then_success(tmp_path: Path) -> None:
+    _write_url_resource(
+        tmp_path, resource_id="aws", url="https://example.com/aws.json", feed_format="aws_ip_ranges_json"
+    )
+
+    def _callback(request):
+        call_count["n"] += 1
+        if call_count["n"] < 3:
+            raise requests.exceptions.Timeout()
+        return (200, {}, '{"prefixes":[{"ip_prefix":"3.5.140.0/22"}]}' )
+
+    call_count = {"n": 0}
+    responses.add_callback(
+        responses.GET,
+        "https://example.com/aws.json",
+        callback=_callback,
+        content_type="application/json",
+    )
+
+    path = generate_resource("aws", tmp_path)
+    add_lines = [line for line in _read_add_lines(path) if line.startswith("/ip/firewall/address-list add")]
+
+    assert len(add_lines) == 1
+    assert "address=3.5.140.0/22" in add_lines[0]
+
+
+def test_url_allow_cache_fallback(tmp_path: Path) -> None:
+    _write_url_resource(
+        tmp_path, resource_id="aws", url="https://example.com/aws.json", feed_format="aws_ip_ranges_json"
+    )
+    cache_dir = tmp_path / "cache"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    (cache_dir / "aws.json").write_text('{"prefixes":[{"ip_prefix":"3.5.140.0/22"}]}')
+
+    dist = tmp_path / "dist"
+    dist.mkdir(parents=True, exist_ok=True)
+    target = dist / "aws.rsc"
+    target.write_text("OLD")
+
+    def _raise(*_args, **_kwargs):
+        raise requests.exceptions.Timeout()
+
+    original = requests.get
+    requests.get = _raise
+    try:
+        path = generate_resource("aws", tmp_path, allow_cache=True)
+        assert path.read_text() != "OLD"
+    finally:
+        requests.get = original
+
+
+def test_url_no_cache_fails(tmp_path: Path) -> None:
+    _write_url_resource(
+        tmp_path, resource_id="aws", url="https://example.com/aws.json", feed_format="aws_ip_ranges_json"
+    )
+    dist = tmp_path / "dist"
+    dist.mkdir(parents=True, exist_ok=True)
+    target = dist / "aws.rsc"
+    target.write_text("OLD")
+
+    def _raise(*_args, **_kwargs):
+        raise requests.exceptions.Timeout()
+
+    original = requests.get
+    requests.get = _raise
+    try:
+        with pytest.raises(GeneratorError):
+            generate_resource("aws", tmp_path, allow_cache=False)
+        assert target.read_text() == "OLD"
+    finally:
+        requests.get = original
+
+
+@responses.activate
 def test_dedup_and_order(tmp_path: Path) -> None:
     _write_resource(tmp_path)
 

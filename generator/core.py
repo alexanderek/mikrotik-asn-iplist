@@ -6,13 +6,14 @@ from pathlib import Path
 import ipaddress
 import json
 import os
-from typing import Iterable, List, Optional
+from typing import Iterable, List, Optional, Tuple
 
 import requests
 import yaml
 
 RIPESTAT_URL = "https://stat.ripe.net/data/announced-prefixes/data.json"
-DEFAULT_TIMEOUT = 10
+DEFAULT_TIMEOUT: Tuple[float, float] = (5.0, 20.0)
+DEFAULT_RETRIES = 3
 
 
 @dataclass(frozen=True)
@@ -73,11 +74,27 @@ def load_resource_config(path: Path) -> ResourceConfig:
     )
 
 
-def _fetch_json(url: str, params: Optional[dict] = None) -> dict:
-    try:
-        resp = requests.get(url, params=params, timeout=DEFAULT_TIMEOUT)
-    except Exception as exc:
-        raise GeneratorError(f"request failed for {url}") from exc
+def _request_with_retries(
+    url: str,
+    params: Optional[dict] = None,
+    headers: Optional[dict] = None,
+    retries: int = DEFAULT_RETRIES,
+) -> requests.Response:
+    last_exc: Optional[Exception] = None
+    for attempt in range(retries):
+        try:
+            resp = requests.get(url, params=params, headers=headers, timeout=DEFAULT_TIMEOUT)
+        except requests.exceptions.RequestException as exc:
+            last_exc = exc
+            continue
+        if resp.status_code in {500, 502, 503, 504, 429} and attempt < retries - 1:
+            continue
+        return resp
+    raise GeneratorError(f"request failed for {url}") from last_exc
+
+
+def _fetch_json(url: str, params: Optional[dict] = None, headers: Optional[dict] = None) -> dict:
+    resp = _request_with_retries(url, params=params, headers=headers)
 
     if resp.status_code != 200:
         raise GeneratorError(f"non-200 from {url}: {resp.status_code}")
@@ -88,11 +105,8 @@ def _fetch_json(url: str, params: Optional[dict] = None) -> dict:
         raise GeneratorError("malformed JSON response") from exc
 
 
-def _fetch_text(url: str) -> str:
-    try:
-        resp = requests.get(url, timeout=DEFAULT_TIMEOUT)
-    except Exception as exc:
-        raise GeneratorError(f"request failed for {url}") from exc
+def _fetch_text(url: str, headers: Optional[dict] = None) -> str:
+    resp = _request_with_retries(url, headers=headers)
 
     if resp.status_code != 200:
         raise GeneratorError(f"non-200 from {url}: {resp.status_code}")
@@ -187,18 +201,102 @@ def fetch_prefixes_for_asn(asn: str) -> List[str]:
     return _extract_prefixes(payload)
 
 
-def fetch_prefixes_for_url(resource: ResourceConfig) -> List[str]:
+def _cache_paths(base_dir: Path, resource: ResourceConfig) -> tuple[Path, Path]:
+    cache_dir = base_dir / "cache"
+    ext = "txt" if resource.format == "plain_cidr" else "json"
+    data_path = cache_dir / f"{resource.resource_id}.{ext}"
+    etag_path = cache_dir / f"{resource.resource_id}.etag"
+    return data_path, etag_path
+
+
+def _write_cache(path: Path, contents: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(contents)
+
+
+def fetch_prefixes_for_url(
+    resource: ResourceConfig, base_dir: Path, allow_cache: bool
+) -> List[str]:
     if not resource.url or not resource.format:
         raise GeneratorError("invalid url resource configuration")
 
     if resource.format == "aws_ip_ranges_json":
-        payload = _fetch_json(resource.url)
+        data_path, etag_path = _cache_paths(base_dir, resource)
+        headers = {}
+        if etag_path.exists():
+            headers["If-None-Match"] = etag_path.read_text().strip()
+        try:
+            resp = _request_with_retries(resource.url, headers=headers)
+        except GeneratorError as exc:
+            if allow_cache and data_path.exists():
+                payload = json.loads(data_path.read_text())
+                return _extract_aws_prefixes(payload)
+            raise exc
+
+        if resp.status_code == 304:
+            if data_path.exists():
+                payload = json.loads(data_path.read_text())
+                return _extract_aws_prefixes(payload)
+            raise GeneratorError("304 received but cache is missing")
+
+        if resp.status_code != 200:
+            raise GeneratorError(f"non-200 from {resource.url}: {resp.status_code}")
+        try:
+            payload = resp.json()
+        except json.JSONDecodeError as exc:
+            raise GeneratorError("malformed JSON response") from exc
+        _write_cache(data_path, resp.text)
+        if resp.headers.get("ETag"):
+            _write_cache(etag_path, resp.headers["ETag"])
         return _extract_aws_prefixes(payload)
     if resource.format == "plain_cidr":
-        text = _fetch_text(resource.url)
+        data_path, etag_path = _cache_paths(base_dir, resource)
+        headers = {}
+        if etag_path.exists():
+            headers["If-None-Match"] = etag_path.read_text().strip()
+        try:
+            resp = _request_with_retries(resource.url, headers=headers)
+        except GeneratorError as exc:
+            if allow_cache and data_path.exists():
+                return _extract_plain_cidr(data_path.read_text())
+            raise exc
+        if resp.status_code == 304:
+            if data_path.exists():
+                return _extract_plain_cidr(data_path.read_text())
+            raise GeneratorError("304 received but cache is missing")
+        if resp.status_code != 200:
+            raise GeneratorError(f"non-200 from {resource.url}: {resp.status_code}")
+        text = resp.text
+        _write_cache(data_path, text)
+        if resp.headers.get("ETag"):
+            _write_cache(etag_path, resp.headers["ETag"])
         return _extract_plain_cidr(text)
     if resource.format == "json_prefix_list":
-        payload = _fetch_json(resource.url)
+        data_path, etag_path = _cache_paths(base_dir, resource)
+        headers = {}
+        if etag_path.exists():
+            headers["If-None-Match"] = etag_path.read_text().strip()
+        try:
+            resp = _request_with_retries(resource.url, headers=headers)
+        except GeneratorError as exc:
+            if allow_cache and data_path.exists():
+                payload = json.loads(data_path.read_text())
+                return _extract_json_prefix_list(payload)
+            raise exc
+        if resp.status_code == 304:
+            if data_path.exists():
+                payload = json.loads(data_path.read_text())
+                return _extract_json_prefix_list(payload)
+            raise GeneratorError("304 received but cache is missing")
+        if resp.status_code != 200:
+            raise GeneratorError(f"non-200 from {resource.url}: {resp.status_code}")
+        try:
+            payload = resp.json()
+        except json.JSONDecodeError as exc:
+            raise GeneratorError("malformed JSON response") from exc
+        _write_cache(data_path, resp.text)
+        if resp.headers.get("ETag"):
+            _write_cache(etag_path, resp.headers["ETag"])
         return _extract_json_prefix_list(payload)
 
     raise GeneratorError("unsupported url format")
@@ -260,7 +358,7 @@ def _self_check_rsc(resource: ResourceConfig, contents: str) -> None:
         raise GeneratorError("self-check failed: count header mismatch")
 
 
-def generate_resource(resource_id: str, base_dir: Path) -> Path:
+def generate_resource(resource_id: str, base_dir: Path, allow_cache: bool = False) -> Path:
     resources_dir = base_dir / "resources"
     dist_dir = base_dir / "dist"
     dist_dir.mkdir(parents=True, exist_ok=True)
@@ -280,7 +378,7 @@ def generate_resource(resource_id: str, base_dir: Path) -> Path:
         for asn in resource.asns:
             all_prefixes.extend(fetch_prefixes_for_asn(asn))
     else:
-        all_prefixes.extend(fetch_prefixes_for_url(resource))
+        all_prefixes.extend(fetch_prefixes_for_url(resource, base_dir, allow_cache))
 
     networks = _dedup_sort(_normalize_ipv4(all_prefixes))
     contents = _render_rsc(resource, networks)
@@ -300,7 +398,7 @@ def generate_resource(resource_id: str, base_dir: Path) -> Path:
     return final_path
 
 
-def generate_all(base_dir: Path) -> List[Path]:
+def generate_all(base_dir: Path, allow_cache: bool = False) -> List[Path]:
     resources_dir = base_dir / "resources"
     if not resources_dir.exists():
         raise GeneratorError("resources directory not found")
@@ -308,6 +406,6 @@ def generate_all(base_dir: Path) -> List[Path]:
     results = []
     for path in sorted(resources_dir.glob("*.yaml")):
         resource = load_resource_config(path)
-        results.append(generate_resource(resource.resource_id, base_dir))
+        results.append(generate_resource(resource.resource_id, base_dir, allow_cache))
 
     return results

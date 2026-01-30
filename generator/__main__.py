@@ -15,6 +15,11 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     gen.add_argument("--resource", help="resource_id to generate")
     gen.add_argument("--all", action="store_true", help="generate all resources")
     gen.add_argument("--base-dir", default=".", help="repository base dir")
+    gen.add_argument(
+        "--allow-cache",
+        action="store_true",
+        help="allow using cached URL responses if fetch fails",
+    )
 
     return parser.parse_args(argv)
 
@@ -30,9 +35,9 @@ def main(argv: list[str]) -> int:
         base_dir = Path(args.base_dir).resolve()
         try:
             if args.all:
-                generate_all(base_dir)
+                generate_all(base_dir, allow_cache=args.allow_cache)
             else:
-                generate_resource(args.resource, base_dir)
+                generate_resource(args.resource, base_dir, allow_cache=args.allow_cache)
         except GeneratorError as exc:
             print(f"error: {exc}", file=sys.stderr)
             return 1
