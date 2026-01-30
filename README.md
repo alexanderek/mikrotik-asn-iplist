@@ -26,6 +26,10 @@ Automated generation of MikroTik RouterOS v7.x firewall address-list entries fro
 - URL: https://www.cloudflare.com/ips-v4
 - Format: plain CIDR per line.
 - Parsing: IPv4 only; IPv6 ignored; malformed line => fail-hard.
+- Example: Google Cloud feed.
+- URL: https://www.gstatic.com/ipranges/cloud.json
+- Format: JSON prefixes[], use ipv4Prefix (IPv4 only; ignore ipv6Prefix).
+- Parsing: fail-hard on malformed/empty result.
 
 ## Quick start
 
