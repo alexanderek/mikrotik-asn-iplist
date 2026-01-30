@@ -1,0 +1,4 @@
+resource_id: cloudflare
+asns:
+  - AS13335
+target_list: blacklist_eu
