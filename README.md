@@ -4,7 +4,13 @@ Automated generation of MikroTik RouterOS v7.x firewall address-list entries fro
 
 - Source of truth: `generator/`
 - Output: `dist/*.rsc`
-- RouterOS loader scripts: `routeros/`
+- RouterOS loader scripts: `routeros/loader_eu.rsc`, `routeros/loader_ru.rsc`
+
+## RouterOS loaders
+
+- Use `routeros/loader_eu.rsc` and `routeros/loader_ru.rsc`.
+- Policy is managed by the `resources` list inside each loader.
+- Each resource maps to a single `dist/<resource>.rsc`.
 
 ## Quick start
 
