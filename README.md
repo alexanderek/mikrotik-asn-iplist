@@ -30,6 +30,10 @@ Automated generation of MikroTik RouterOS v7.x firewall address-list entries fro
 - URL: https://www.gstatic.com/ipranges/cloud.json
 - Format: JSON prefixes[], use ipv4Prefix (IPv4 only; ignore ipv6Prefix).
 - Parsing: fail-hard on malformed/empty result.
+- Example: Fastly public IP list.
+- URL: https://api.fastly.com/public-ip-list
+- Format: JSON addresses[] (IPv4 only; ignore ipv6_addresses).
+- Parsing: fail-hard on malformed/empty result.
 
 ## Quick start
 

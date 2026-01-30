@@ -1,4 +1,4 @@
 resource_id: fastly
-source_type: asn
-asns:
-  - AS54113
+source_type: url
+url: https://api.fastly.com/public-ip-list
+format: fastly_public_ip_list_json
