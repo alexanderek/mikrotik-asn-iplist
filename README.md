@@ -34,6 +34,9 @@ Automated generation of MikroTik RouterOS v7.x firewall address-list entries fro
 - URL: https://api.fastly.com/public-ip-list
 - Format: JSON addresses[] (IPv4 only; ignore ipv6_addresses).
 - Parsing: fail-hard on malformed/empty result.
+- Example: Telegram CIDR list.
+- URL: https://core.telegram.org/resources/cidr.txt
+- Format: plain CIDR per line (IPv4 only).
 
 ## Loader logging
 

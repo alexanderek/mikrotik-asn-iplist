@@ -1,4 +1,4 @@
 resource_id: telegram
-source_type: asn
-asns:
-  - AS62041
+source_type: url
+url: https://core.telegram.org/resources/cidr.txt
+format: plain_cidr

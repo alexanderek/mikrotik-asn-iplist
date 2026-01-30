@@ -868,6 +868,29 @@ def test_url_allow_stale_cache_timeout_uses_cache(tmp_path: Path) -> None:
 
 
 @responses.activate
+def test_telegram_uses_official_cidr_feed(tmp_path: Path) -> None:
+    (tmp_path / "resources").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "resources" / "telegram.yaml").write_text(
+        "resource_id: telegram\n"
+        "source_type: url\n"
+        "url: https://core.telegram.org/resources/cidr.txt\n"
+        "format: plain_cidr\n"
+    )
+
+    responses.add(
+        responses.GET,
+        "https://core.telegram.org/resources/cidr.txt",
+        body="149.154.160.0/20\n149.154.160.0/22\n",
+        status=200,
+    )
+
+    path = generate_resource("telegram", tmp_path, collapse="shadowed")
+    add_lines = [line for line in _read_add_lines(path) if line.startswith("/ip/firewall/address-list add")]
+    assert len(add_lines) == 1
+    assert any("address=149.154.160.0/20" in line for line in add_lines)
+
+
+@responses.activate
 def test_dedup_and_order(tmp_path: Path) -> None:
     _write_resource(tmp_path)
 
