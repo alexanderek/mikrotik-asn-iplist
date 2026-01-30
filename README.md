@@ -20,6 +20,13 @@ Automated generation of MikroTik RouterOS v7.x firewall address-list entries fro
 - Policy is controlled by membership in each loader’s `resources` list.
 - `dist/<resource>.rsc` is parameterized via `$AddressList`.
 
+## Official feeds
+
+- Example: Cloudflare IPv4 feed.
+- URL: https://www.cloudflare.com/ips-v4
+- Format: plain CIDR per line.
+- Parsing: IPv4 only; IPv6 ignored; malformed line => fail-hard.
+
 ## Quick start
 
 ```bash
