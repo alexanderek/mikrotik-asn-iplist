@@ -1,3 +1,4 @@
 resource_id: contabo
+source_type: asn
 asns:
   - AS51167

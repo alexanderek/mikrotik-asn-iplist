@@ -17,9 +17,23 @@ def _write_resource(base_dir: Path, asns=None, resource_id: str = "cloudflare") 
         asns = ["AS13335"]
     (resources / f"{resource_id}.yaml").write_text(
         f"resource_id: {resource_id}\n"
+        "source_type: asn\n"
         "asns:\n"
         + "\n".join([f"  - {asn}" for asn in asns])
         + "\n"
+    )
+
+
+def _write_url_resource(
+    base_dir: Path, resource_id: str, url: str, feed_format: str
+) -> None:
+    resources = base_dir / "resources"
+    resources.mkdir(parents=True, exist_ok=True)
+    (resources / f"{resource_id}.yaml").write_text(
+        f"resource_id: {resource_id}\n"
+        "source_type: url\n"
+        f"url: {url}\n"
+        f"format: {feed_format}\n"
     )
 
 
@@ -44,6 +58,28 @@ def test_non_200_does_not_overwrite(tmp_path: Path) -> None:
 
     with pytest.raises(GeneratorError):
         generate_resource("cloudflare", tmp_path)
+
+    assert target.read_text() == "OLD"
+
+
+@responses.activate
+def test_url_non_200_does_not_overwrite(tmp_path: Path) -> None:
+    _write_url_resource(
+        tmp_path, resource_id="aws", url="https://example.com/aws.json", feed_format="aws_ip_ranges_json"
+    )
+    dist = tmp_path / "dist"
+    dist.mkdir(parents=True, exist_ok=True)
+    target = dist / "aws.rsc"
+    target.write_text("OLD")
+
+    responses.add(
+        responses.GET,
+        "https://example.com/aws.json",
+        status=500,
+    )
+
+    with pytest.raises(GeneratorError):
+        generate_resource("aws", tmp_path)
 
     assert target.read_text() == "OLD"
 
@@ -87,6 +123,29 @@ def test_malformed_json_does_not_overwrite(tmp_path: Path) -> None:
 
 
 @responses.activate
+def test_url_malformed_json_does_not_overwrite(tmp_path: Path) -> None:
+    _write_url_resource(
+        tmp_path, resource_id="aws", url="https://example.com/aws.json", feed_format="aws_ip_ranges_json"
+    )
+    dist = tmp_path / "dist"
+    dist.mkdir(parents=True, exist_ok=True)
+    target = dist / "aws.rsc"
+    target.write_text("OLD")
+
+    responses.add(
+        responses.GET,
+        "https://example.com/aws.json",
+        body="not-json",
+        status=200,
+    )
+
+    with pytest.raises(GeneratorError):
+        generate_resource("aws", tmp_path)
+
+    assert target.read_text() == "OLD"
+
+
+@responses.activate
 def test_empty_prefixes_fails(tmp_path: Path) -> None:
     _write_resource(tmp_path)
 
@@ -125,6 +184,29 @@ def test_empty_prefixes_does_not_overwrite(tmp_path: Path) -> None:
 
 
 @responses.activate
+def test_url_empty_prefixes_does_not_overwrite(tmp_path: Path) -> None:
+    _write_url_resource(
+        tmp_path, resource_id="aws", url="https://example.com/aws.json", feed_format="aws_ip_ranges_json"
+    )
+    dist = tmp_path / "dist"
+    dist.mkdir(parents=True, exist_ok=True)
+    target = dist / "aws.rsc"
+    target.write_text("OLD")
+
+    responses.add(
+        responses.GET,
+        "https://example.com/aws.json",
+        json={"prefixes": []},
+        status=200,
+    )
+
+    with pytest.raises(GeneratorError):
+        generate_resource("aws", tmp_path)
+
+    assert target.read_text() == "OLD"
+
+
+@responses.activate
 def test_timeout_does_not_overwrite(tmp_path: Path) -> None:
     _write_resource(tmp_path)
     dist = tmp_path / "dist"
@@ -141,6 +223,28 @@ def test_timeout_does_not_overwrite(tmp_path: Path) -> None:
 
     with pytest.raises(GeneratorError):
         generate_resource("cloudflare", tmp_path)
+
+    assert target.read_text() == "OLD"
+
+
+@responses.activate
+def test_url_timeout_does_not_overwrite(tmp_path: Path) -> None:
+    _write_url_resource(
+        tmp_path, resource_id="aws", url="https://example.com/aws.json", feed_format="aws_ip_ranges_json"
+    )
+    dist = tmp_path / "dist"
+    dist.mkdir(parents=True, exist_ok=True)
+    target = dist / "aws.rsc"
+    target.write_text("OLD")
+
+    responses.add(
+        responses.GET,
+        "https://example.com/aws.json",
+        body=requests.exceptions.Timeout(),
+    )
+
+    with pytest.raises(GeneratorError):
+        generate_resource("aws", tmp_path)
 
     assert target.read_text() == "OLD"
 
@@ -169,6 +273,33 @@ def test_ipv6_excluded(tmp_path: Path) -> None:
 
     assert len(add_lines) == 1
     assert "address=1.1.1.0/24" in add_lines[0]
+    assert "list=$AddressList" in add_lines[0]
+
+
+@responses.activate
+def test_url_aws_json_success(tmp_path: Path) -> None:
+    _write_url_resource(
+        tmp_path, resource_id="aws", url="https://example.com/aws.json", feed_format="aws_ip_ranges_json"
+    )
+
+    responses.add(
+        responses.GET,
+        "https://example.com/aws.json",
+        json={
+            "prefixes": [
+                {"ip_prefix": "3.5.140.0/22"},
+                {"ip_prefix": "2001:db8::/32"},
+            ],
+            "ipv6_prefixes": [{"ipv6_prefix": "2600:9000::/28"}],
+        },
+        status=200,
+    )
+
+    path = generate_resource("aws", tmp_path)
+    add_lines = [line for line in _read_add_lines(path) if line.startswith("/ip/firewall/address-list add")]
+
+    assert len(add_lines) == 1
+    assert "address=3.5.140.0/22" in add_lines[0]
     assert "list=$AddressList" in add_lines[0]
 
 

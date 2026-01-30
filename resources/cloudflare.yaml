@@ -1,3 +1,4 @@
 resource_id: cloudflare
+source_type: asn
 asns:
   - AS13335

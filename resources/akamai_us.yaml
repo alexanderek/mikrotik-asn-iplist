@@ -1,3 +1,4 @@
 resource_id: akamai_us
+source_type: asn
 asns:
   - AS16625

@@ -1,3 +1,4 @@
 resource_id: ovh
+source_type: asn
 asns:
   - AS16276

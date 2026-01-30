@@ -1,3 +1,4 @@
 resource_id: cdn77
+source_type: asn
 asns:
   - AS60068

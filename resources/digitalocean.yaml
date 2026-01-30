@@ -1,3 +1,4 @@
 resource_id: digitalocean
+source_type: asn
 asns:
   - AS14061

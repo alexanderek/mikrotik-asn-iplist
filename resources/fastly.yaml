@@ -1,3 +1,4 @@
 resource_id: fastly
+source_type: asn
 asns:
   - AS54113

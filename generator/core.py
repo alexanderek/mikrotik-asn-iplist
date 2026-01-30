@@ -6,7 +6,7 @@ from pathlib import Path
 import ipaddress
 import json
 import os
-from typing import Iterable, List
+from typing import Iterable, List, Optional
 
 import requests
 import yaml
@@ -18,7 +18,10 @@ DEFAULT_TIMEOUT = 10
 @dataclass(frozen=True)
 class ResourceConfig:
     resource_id: str
-    asns: List[str]
+    source_type: str
+    asns: Optional[List[str]]
+    url: Optional[str]
+    format: Optional[str]
 
 
 class GeneratorError(RuntimeError):
@@ -39,16 +42,38 @@ def load_resource_config(path: Path) -> ResourceConfig:
         raise GeneratorError(f"invalid config structure in {path}")
 
     resource_id = data.get("resource_id")
+    source_type = data.get("source_type")
     asns = data.get("asns")
+    url = data.get("url")
+    feed_format = data.get("format")
 
     if not resource_id or not isinstance(resource_id, str):
         raise GeneratorError(f"invalid resource_id in {path}")
-    if not asns or not isinstance(asns, list) or not all(isinstance(a, str) for a in asns):
-        raise GeneratorError(f"invalid asns list in {path}")
-    return ResourceConfig(resource_id=resource_id, asns=asns)
+    if source_type not in {"asn", "url"}:
+        raise GeneratorError(f"invalid source_type in {path}")
+
+    if source_type == "asn":
+        if not asns or not isinstance(asns, list) or not all(isinstance(a, str) for a in asns):
+            raise GeneratorError(f"invalid asns list in {path}")
+        if url or feed_format:
+            raise GeneratorError(f"unexpected url/format for asn source in {path}")
+        return ResourceConfig(
+            resource_id=resource_id, source_type=source_type, asns=asns, url=None, format=None
+        )
+
+    if not url or not isinstance(url, str):
+        raise GeneratorError(f"invalid url in {path}")
+    if feed_format not in {"aws_ip_ranges_json", "plain_cidr", "json_prefix_list"}:
+        raise GeneratorError(f"invalid format in {path}")
+    if asns:
+        raise GeneratorError(f"unexpected asns for url source in {path}")
+
+    return ResourceConfig(
+        resource_id=resource_id, source_type=source_type, asns=None, url=url, format=feed_format
+    )
 
 
-def _fetch_json(url: str, params: dict) -> dict:
+def _fetch_json(url: str, params: Optional[dict] = None) -> dict:
     try:
         resp = requests.get(url, params=params, timeout=DEFAULT_TIMEOUT)
     except Exception as exc:
@@ -61,6 +86,17 @@ def _fetch_json(url: str, params: dict) -> dict:
         return resp.json()
     except json.JSONDecodeError as exc:
         raise GeneratorError("malformed JSON response") from exc
+
+
+def _fetch_text(url: str) -> str:
+    try:
+        resp = requests.get(url, timeout=DEFAULT_TIMEOUT)
+    except Exception as exc:
+        raise GeneratorError(f"request failed for {url}") from exc
+
+    if resp.status_code != 200:
+        raise GeneratorError(f"non-200 from {url}: {resp.status_code}")
+    return resp.text
 
 
 def _extract_prefixes(payload: dict) -> List[str]:
@@ -77,6 +113,54 @@ def _extract_prefixes(payload: dict) -> List[str]:
         elif isinstance(item, dict) and "prefix" in item:
             result.append(item["prefix"])
     return result
+
+
+def _extract_aws_prefixes(payload: dict) -> List[str]:
+    if not isinstance(payload, dict):
+        raise GeneratorError("malformed JSON response")
+    prefixes = payload.get("prefixes")
+    if not prefixes:
+        raise GeneratorError("empty prefixes")
+
+    result: List[str] = []
+    for item in prefixes:
+        if isinstance(item, dict) and "ip_prefix" in item:
+            result.append(item["ip_prefix"])
+    return result
+
+
+def _extract_plain_cidr(text: str) -> List[str]:
+    prefixes = []
+    for line in text.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        prefixes.append(line)
+    if not prefixes:
+        raise GeneratorError("empty prefixes")
+    return prefixes
+
+
+def _extract_json_prefix_list(payload: object) -> List[str]:
+    if isinstance(payload, list):
+        prefixes = [p for p in payload if isinstance(p, str)]
+    elif isinstance(payload, dict):
+        raw = payload.get("prefixes")
+        if isinstance(raw, list):
+            prefixes = []
+            for item in raw:
+                if isinstance(item, str):
+                    prefixes.append(item)
+                elif isinstance(item, dict) and "prefix" in item:
+                    prefixes.append(item["prefix"])
+        else:
+            prefixes = []
+    else:
+        prefixes = []
+
+    if not prefixes:
+        raise GeneratorError("empty prefixes")
+    return prefixes
 
 
 def _normalize_ipv4(prefixes: Iterable[str]) -> List[ipaddress.IPv4Network]:
@@ -101,6 +185,23 @@ def _dedup_sort(networks: Iterable[ipaddress.IPv4Network]) -> List[ipaddress.IPv
 def fetch_prefixes_for_asn(asn: str) -> List[str]:
     payload = _fetch_json(RIPESTAT_URL, params={"resource": asn})
     return _extract_prefixes(payload)
+
+
+def fetch_prefixes_for_url(resource: ResourceConfig) -> List[str]:
+    if not resource.url or not resource.format:
+        raise GeneratorError("invalid url resource configuration")
+
+    if resource.format == "aws_ip_ranges_json":
+        payload = _fetch_json(resource.url)
+        return _extract_aws_prefixes(payload)
+    if resource.format == "plain_cidr":
+        text = _fetch_text(resource.url)
+        return _extract_plain_cidr(text)
+    if resource.format == "json_prefix_list":
+        payload = _fetch_json(resource.url)
+        return _extract_json_prefix_list(payload)
+
+    raise GeneratorError("unsupported url format")
 
 
 def _render_rsc(resource: ResourceConfig, networks: List[ipaddress.IPv4Network]) -> str:
@@ -173,8 +274,13 @@ def generate_resource(resource_id: str, base_dir: Path) -> Path:
         raise GeneratorError("resource_id mismatch between file and contents")
 
     all_prefixes: List[str] = []
-    for asn in resource.asns:
-        all_prefixes.extend(fetch_prefixes_for_asn(asn))
+    if resource.source_type == "asn":
+        if not resource.asns:
+            raise GeneratorError("asn source missing asns")
+        for asn in resource.asns:
+            all_prefixes.extend(fetch_prefixes_for_asn(asn))
+    else:
+        all_prefixes.extend(fetch_prefixes_for_url(resource))
 
     networks = _dedup_sort(_normalize_ipv4(all_prefixes))
     contents = _render_rsc(resource, networks)

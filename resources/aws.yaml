@@ -1,3 +1,4 @@
 resource_id: aws
-asns:
-  - AS16509
+source_type: url
+url: https://ip-ranges.amazonaws.com/ip-ranges.json
+format: aws_ip_ranges_json
