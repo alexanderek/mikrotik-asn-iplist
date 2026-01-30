@@ -1,4 +1,4 @@
 resource_id: googlecloud
-source_type: asn
-asns:
-  - AS396982
+source_type: url
+url: https://www.gstatic.com/ipranges/cloud.json
+format: google_cloud_json

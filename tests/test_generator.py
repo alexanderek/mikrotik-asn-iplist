@@ -422,6 +422,88 @@ def test_plain_cidr_malformed_line_fails(tmp_path: Path) -> None:
     assert target.read_text() == "OLD"
 
 
+@responses.activate
+def test_google_cloud_json_success_ipv4_only(tmp_path: Path) -> None:
+    _write_url_resource(
+        tmp_path,
+        resource_id="googlecloud",
+        url="https://example.com/cloud.json",
+        feed_format="google_cloud_json",
+    )
+
+    responses.add(
+        responses.GET,
+        "https://example.com/cloud.json",
+        json={
+            "prefixes": [
+                {"ipv4Prefix": "34.80.0.0/15"},
+                {"ipv6Prefix": "2600:1900::/28"},
+                {"ipv4Prefix": "35.190.0.0/17"},
+            ]
+        },
+        status=200,
+    )
+
+    path = generate_resource("googlecloud", tmp_path)
+    add_lines = [line for line in _read_add_lines(path) if line.startswith("/ip/firewall/address-list add")]
+
+    assert len(add_lines) == 2
+    assert any("address=34.80.0.0/15" in line for line in add_lines)
+    assert any("address=35.190.0.0/17" in line for line in add_lines)
+
+
+@responses.activate
+def test_google_cloud_json_malformed_fails_and_preserves_dist(tmp_path: Path) -> None:
+    _write_url_resource(
+        tmp_path,
+        resource_id="googlecloud",
+        url="https://example.com/cloud.json",
+        feed_format="google_cloud_json",
+    )
+    dist = tmp_path / "dist"
+    dist.mkdir(parents=True, exist_ok=True)
+    target = dist / "googlecloud.rsc"
+    target.write_text("OLD")
+
+    responses.add(
+        responses.GET,
+        "https://example.com/cloud.json",
+        body="not-json",
+        status=200,
+    )
+
+    with pytest.raises(GeneratorError):
+        generate_resource("googlecloud", tmp_path)
+
+    assert target.read_text() == "OLD"
+
+
+@responses.activate
+def test_google_cloud_json_empty_ipv4_fails_and_preserves_dist(tmp_path: Path) -> None:
+    _write_url_resource(
+        tmp_path,
+        resource_id="googlecloud",
+        url="https://example.com/cloud.json",
+        feed_format="google_cloud_json",
+    )
+    dist = tmp_path / "dist"
+    dist.mkdir(parents=True, exist_ok=True)
+    target = dist / "googlecloud.rsc"
+    target.write_text("OLD")
+
+    responses.add(
+        responses.GET,
+        "https://example.com/cloud.json",
+        json={"prefixes": [{"ipv6Prefix": "2600:1900::/28"}]},
+        status=200,
+    )
+
+    with pytest.raises(GeneratorError):
+        generate_resource("googlecloud", tmp_path)
+
+    assert target.read_text() == "OLD"
+
+
 def test_url_allow_cache_fallback(tmp_path: Path) -> None:
     _write_url_resource(
         tmp_path, resource_id="aws", url="https://example.com/aws.json", feed_format="aws_ip_ranges_json"

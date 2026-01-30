@@ -64,7 +64,7 @@ def load_resource_config(path: Path) -> ResourceConfig:
 
     if not url or not isinstance(url, str):
         raise GeneratorError(f"invalid url in {path}")
-    if feed_format not in {"aws_ip_ranges_json", "plain_cidr", "json_prefix_list"}:
+    if feed_format not in {"aws_ip_ranges_json", "plain_cidr", "json_prefix_list", "google_cloud_json"}:
         raise GeneratorError(f"invalid format in {path}")
     if asns:
         raise GeneratorError(f"unexpected asns for url source in {path}")
@@ -188,6 +188,19 @@ def _extract_json_prefix_list(payload: object) -> List[str]:
     return prefixes
 
 
+def _extract_google_cloud_prefixes(payload: dict) -> List[str]:
+    if not isinstance(payload, dict):
+        raise GeneratorError("malformed JSON response")
+    prefixes = payload.get("prefixes")
+    if not prefixes:
+        raise GeneratorError("empty prefixes")
+    result: List[str] = []
+    for item in prefixes:
+        if isinstance(item, dict) and "ipv4Prefix" in item:
+            result.append(item["ipv4Prefix"])
+    return result
+
+
 def _normalize_ipv4(prefixes: Iterable[str]) -> List[ipaddress.IPv4Network]:
     networks: List[ipaddress.IPv4Network] = []
     for pfx in prefixes:
@@ -309,6 +322,33 @@ def fetch_prefixes_for_url(
         if resp.headers.get("ETag"):
             _write_cache(etag_path, resp.headers["ETag"])
         return _extract_json_prefix_list(payload)
+    if resource.format == "google_cloud_json":
+        data_path, etag_path = _cache_paths(base_dir, resource)
+        headers = {}
+        if etag_path.exists():
+            headers["If-None-Match"] = etag_path.read_text().strip()
+        try:
+            resp = _request_with_retries(resource.url, headers=headers)
+        except GeneratorError as exc:
+            if allow_cache and data_path.exists():
+                payload = json.loads(data_path.read_text())
+                return _extract_google_cloud_prefixes(payload)
+            raise exc
+        if resp.status_code == 304:
+            if data_path.exists():
+                payload = json.loads(data_path.read_text())
+                return _extract_google_cloud_prefixes(payload)
+            raise GeneratorError("304 received but cache is missing")
+        if resp.status_code != 200:
+            raise GeneratorError(f"non-200 from {resource.url}: {resp.status_code}")
+        try:
+            payload = resp.json()
+        except json.JSONDecodeError as exc:
+            raise GeneratorError("malformed JSON response") from exc
+        _write_cache(data_path, resp.text)
+        if resp.headers.get("ETag"):
+            _write_cache(etag_path, resp.headers["ETag"])
+        return _extract_google_cloud_prefixes(payload)
 
     raise GeneratorError("unsupported url format")
 

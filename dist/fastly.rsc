@@ -1,6 +1,6 @@
 # iplist-rsc v1
 # resource=fastly
-# generated=2026-01-30T13:57:03.907507Z
+# generated=2026-01-30T14:04:19.970021Z
 # count=537
 
 /ip/firewall/address-list remove [find where comment="iplist:auto:fastly"]
