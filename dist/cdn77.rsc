@@ -1,6 +1,6 @@
 # iplist-rsc v1
 # resource=cdn77
-# generated=2026-01-30T13:55:35.861039Z
+# generated=2026-01-30T13:57:02.362741Z
 # count=383
 
 /ip/firewall/address-list remove [find where comment="iplist:auto:cdn77"]
