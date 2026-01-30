@@ -7,7 +7,7 @@ import requests
 import responses
 
 from generator import core as gen_core
-from generator.core import GeneratorError, RIPESTAT_URL, generate_resource
+from generator.core import GeneratorError, RIPESTAT_URL, generate_resource, reset_stale_cache_used, stale_cache_used
 
 
 def _write_resource(base_dir: Path, asns=None, resource_id: str = "cloudflare") -> None:
@@ -628,6 +628,7 @@ def test_fastly_public_ip_list_invalid_cidr_fails(tmp_path: Path) -> None:
     assert target.read_text() == "OLD"
 
 
+@responses.activate
 def test_url_allow_cache_fallback(tmp_path: Path) -> None:
     _write_url_resource(
         tmp_path, resource_id="aws", url="https://example.com/aws.json", feed_format="aws_ip_ranges_json"
@@ -641,16 +642,14 @@ def test_url_allow_cache_fallback(tmp_path: Path) -> None:
     target = dist / "aws.rsc"
     target.write_text("OLD")
 
-    def _raise(*_args, **_kwargs):
-        raise requests.exceptions.Timeout()
+    responses.add(
+        responses.GET,
+        "https://example.com/aws.json",
+        status=304,
+    )
 
-    original = requests.get
-    requests.get = _raise
-    try:
-        path = generate_resource("aws", tmp_path, allow_cache=True)
-        assert path.read_text() != "OLD"
-    finally:
-        requests.get = original
+    path = generate_resource("aws", tmp_path, allow_cache=True)
+    assert path.read_text() != "OLD"
 
 
 def test_url_no_cache_fails(tmp_path: Path) -> None:
@@ -676,7 +675,7 @@ def test_url_no_cache_fails(tmp_path: Path) -> None:
 
 
 @responses.activate
-def test_url_non_200_uses_cache_when_allowed(tmp_path: Path) -> None:
+def test_url_allow_cache_non_200_fails(tmp_path: Path) -> None:
     _write_url_resource(
         tmp_path, resource_id="fastly", url="https://example.com/fastly.json", feed_format="fastly_public_ip_list_json"
     )
@@ -692,9 +691,79 @@ def test_url_non_200_uses_cache_when_allowed(tmp_path: Path) -> None:
         status=403,
     )
 
-    path = generate_resource("fastly", tmp_path, allow_cache=True)
+    with pytest.raises(GeneratorError):
+        generate_resource("fastly", tmp_path, allow_cache=True)
+
+
+def test_url_allow_cache_timeout_fails(tmp_path: Path) -> None:
+    _write_url_resource(
+        tmp_path, resource_id="fastly", url="https://example.com/fastly.json", feed_format="fastly_public_ip_list_json"
+    )
+    cache_dir = tmp_path / "cache"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    (cache_dir / "fastly.json").write_text(
+        '{\"addresses\":[\"23.235.32.0/20\"],\"ipv6_addresses\":[\"2a04:4e42::/32\"]}'
+    )
+
+    def _raise(*_args, **_kwargs):
+        raise requests.exceptions.Timeout()
+
+    original = requests.get
+    requests.get = _raise
+    try:
+        with pytest.raises(GeneratorError):
+            generate_resource("fastly", tmp_path, allow_cache=True)
+    finally:
+        requests.get = original
+
+
+@responses.activate
+def test_url_allow_stale_cache_non_200_uses_cache(tmp_path: Path) -> None:
+    reset_stale_cache_used()
+    _write_url_resource(
+        tmp_path, resource_id="fastly", url="https://example.com/fastly.json", feed_format="fastly_public_ip_list_json"
+    )
+    cache_dir = tmp_path / "cache"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    (cache_dir / "fastly.json").write_text(
+        '{\"addresses\":[\"23.235.32.0/20\"],\"ipv6_addresses\":[\"2a04:4e42::/32\"]}'
+    )
+
+    responses.add(
+        responses.GET,
+        "https://example.com/fastly.json",
+        status=403,
+    )
+
+    path = generate_resource("fastly", tmp_path, allow_stale_cache=True)
     add_lines = [line for line in _read_add_lines(path) if line.startswith("/ip/firewall/address-list add")]
     assert len(add_lines) == 1
+    assert stale_cache_used()
+
+
+def test_url_allow_stale_cache_timeout_uses_cache(tmp_path: Path) -> None:
+    reset_stale_cache_used()
+    _write_url_resource(
+        tmp_path, resource_id="fastly", url="https://example.com/fastly.json", feed_format="fastly_public_ip_list_json"
+    )
+    cache_dir = tmp_path / "cache"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    (cache_dir / "fastly.json").write_text(
+        '{\"addresses\":[\"23.235.32.0/20\"],\"ipv6_addresses\":[\"2a04:4e42::/32\"]}'
+    )
+
+    def _raise(*_args, **_kwargs):
+        raise requests.exceptions.Timeout()
+
+    original = requests.get
+    requests.get = _raise
+    try:
+        path = generate_resource("fastly", tmp_path, allow_stale_cache=True)
+        add_lines = [line for line in _read_add_lines(path) if line.startswith("/ip/firewall/address-list add")]
+        assert len(add_lines) == 1
+        assert stale_cache_used()
+    finally:
+        requests.get = original
 
 
 @responses.activate

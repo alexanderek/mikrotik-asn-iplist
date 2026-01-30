@@ -4,7 +4,13 @@ import argparse
 from pathlib import Path
 import sys
 
-from .core import GeneratorError, generate_all, generate_resource
+from .core import (
+    GeneratorError,
+    generate_all,
+    generate_resource,
+    reset_stale_cache_used,
+    stale_cache_used,
+)
 
 
 def _parse_args(argv: list[str]) -> argparse.Namespace:
@@ -18,7 +24,12 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
     gen.add_argument(
         "--allow-cache",
         action="store_true",
-        help="allow using cached URL responses if fetch fails",
+        help="allow using cached URL responses only on HTTP 304",
+    )
+    gen.add_argument(
+        "--allow-stale-cache",
+        action="store_true",
+        help="allow using cached URL responses on non-200/timeout (stale)",
     )
 
     return parser.parse_args(argv)
@@ -33,11 +44,23 @@ def main(argv: list[str]) -> int:
             return 2
 
         base_dir = Path(args.base_dir).resolve()
+        reset_stale_cache_used()
         try:
             if args.all:
-                generate_all(base_dir, allow_cache=args.allow_cache)
+                generate_all(
+                    base_dir,
+                    allow_cache=args.allow_cache,
+                    allow_stale_cache=args.allow_stale_cache,
+                )
             else:
-                generate_resource(args.resource, base_dir, allow_cache=args.allow_cache)
+                generate_resource(
+                    args.resource,
+                    base_dir,
+                    allow_cache=args.allow_cache,
+                    allow_stale_cache=args.allow_stale_cache,
+                )
+            if args.allow_stale_cache and stale_cache_used():
+                print("CACHE_STALE_USED=true")
         except GeneratorError as exc:
             print(f"error: {exc}", file=sys.stderr)
             return 1

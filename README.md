@@ -41,6 +41,13 @@ Automated generation of MikroTik RouterOS v7.x firewall address-list entries fro
 - Example fetch: `iplist: event=fetch scope=EU list=blacklist_eu resource=cloudflare url=... runId=...`
 - Example import_ok: `iplist: event=import_ok scope=EU list=blacklist_eu resource=cloudflare bytes=1234 total=15 runId=...`
 
+## Audit snapshot (local)
+
+- Cache policy: allow-cache only on HTTP 304; non-200/timeout fail hard; allow-stale-cache explicitly logs `event=cache_stale_used`.
+- Telegram (ASN): shadowed_count=4, mismatch_rate=0/10 (RIPEstat sample).
+- Meta (ASN): shadowed_count=177, mismatch_rate=0/20 (RIPEstat sample).
+- Twitter (ASN): shadowed_count=23, mismatch_rate=0/20 (RIPEstat sample).
+
 ## Quick start
 
 ```bash

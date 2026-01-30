@@ -14,6 +14,7 @@ import yaml
 RIPESTAT_URL = "https://stat.ripe.net/data/announced-prefixes/data.json"
 DEFAULT_TIMEOUT: Tuple[float, float] = (5.0, 20.0)
 DEFAULT_RETRIES = 3
+_STALE_CACHE_USED = False
 
 
 @dataclass(frozen=True)
@@ -97,6 +98,22 @@ def _request_with_retries(
             continue
         return resp
     raise GeneratorError(f"request failed for {url}") from last_exc
+
+
+def _mark_stale_cache_used(reason: str, url: str, status: Optional[int] = None) -> None:
+    global _STALE_CACHE_USED
+    _STALE_CACHE_USED = True
+    suffix = f" status={status}" if status is not None else ""
+    print(f"event=cache_stale_used reason={reason} url={url}{suffix}", flush=True)
+
+
+def stale_cache_used() -> bool:
+    return _STALE_CACHE_USED
+
+
+def reset_stale_cache_used() -> None:
+    global _STALE_CACHE_USED
+    _STALE_CACHE_USED = False
 
 
 def _fetch_json(url: str, params: Optional[dict] = None, headers: Optional[dict] = None) -> dict:
@@ -247,6 +264,23 @@ def _dedup_sort(networks: Iterable[ipaddress.IPv4Network]) -> List[ipaddress.IPv
     return sorted(uniq.values(), key=lambda n: (int(n.network_address), n.prefixlen))
 
 
+def analyze_shadowed_prefixes(
+    networks: Iterable[ipaddress.IPv4Network],
+) -> tuple[int, dict[str, int]]:
+    nets = list(networks)
+    nets_sorted = sorted(nets, key=lambda n: (n.prefixlen, int(n.network_address)))
+    shadowed = 0
+    offenders: dict[str, int] = {}
+    for idx, net in enumerate(nets_sorted):
+        for supernet in nets_sorted[:idx]:
+            if net.subnet_of(supernet):
+                shadowed += 1
+                key = str(supernet)
+                offenders[key] = offenders.get(key, 0) + 1
+                break
+    return shadowed, offenders
+
+
 def fetch_prefixes_for_asn(asn: str) -> List[str]:
     payload = _fetch_json(RIPESTAT_URL, params={"resource": asn})
     return _extract_prefixes(payload)
@@ -266,7 +300,7 @@ def _write_cache(path: Path, contents: str) -> None:
 
 
 def fetch_prefixes_for_url(
-    resource: ResourceConfig, base_dir: Path, allow_cache: bool
+    resource: ResourceConfig, base_dir: Path, allow_cache: bool, allow_stale_cache: bool
 ) -> List[str]:
     if not resource.url or not resource.format:
         raise GeneratorError("invalid url resource configuration")
@@ -279,19 +313,21 @@ def fetch_prefixes_for_url(
         try:
             resp = _request_with_retries(resource.url, headers=headers)
         except GeneratorError as exc:
-            if allow_cache and data_path.exists():
+            if allow_stale_cache and data_path.exists():
+                _mark_stale_cache_used("timeout", resource.url)
                 payload = json.loads(data_path.read_text())
                 return _extract_aws_prefixes(payload)
             raise exc
 
         if resp.status_code == 304:
-            if data_path.exists():
+            if allow_cache and data_path.exists():
                 payload = json.loads(data_path.read_text())
                 return _extract_aws_prefixes(payload)
-            raise GeneratorError("304 received but cache is missing")
+            raise GeneratorError("304 received but cache is missing or disallowed")
 
         if resp.status_code != 200:
-            if allow_cache and data_path.exists():
+            if allow_stale_cache and data_path.exists():
+                _mark_stale_cache_used("non_200", resource.url, resp.status_code)
                 payload = json.loads(data_path.read_text())
                 return _extract_aws_prefixes(payload)
             raise GeneratorError(f"non-200 from {resource.url}: {resp.status_code}")
@@ -311,15 +347,17 @@ def fetch_prefixes_for_url(
         try:
             resp = _request_with_retries(resource.url, headers=headers)
         except GeneratorError as exc:
-            if allow_cache and data_path.exists():
+            if allow_stale_cache and data_path.exists():
+                _mark_stale_cache_used("timeout", resource.url)
                 return _extract_plain_cidr(data_path.read_text())
             raise exc
         if resp.status_code == 304:
-            if data_path.exists():
-                return _extract_plain_cidr(data_path.read_text())
-            raise GeneratorError("304 received but cache is missing")
-        if resp.status_code != 200:
             if allow_cache and data_path.exists():
+                return _extract_plain_cidr(data_path.read_text())
+            raise GeneratorError("304 received but cache is missing or disallowed")
+        if resp.status_code != 200:
+            if allow_stale_cache and data_path.exists():
+                _mark_stale_cache_used("non_200", resource.url, resp.status_code)
                 return _extract_plain_cidr(data_path.read_text())
             raise GeneratorError(f"non-200 from {resource.url}: {resp.status_code}")
         text = resp.text
@@ -335,17 +373,19 @@ def fetch_prefixes_for_url(
         try:
             resp = _request_with_retries(resource.url, headers=headers)
         except GeneratorError as exc:
-            if allow_cache and data_path.exists():
+            if allow_stale_cache and data_path.exists():
+                _mark_stale_cache_used("timeout", resource.url)
                 payload = json.loads(data_path.read_text())
                 return _extract_json_prefix_list(payload)
             raise exc
         if resp.status_code == 304:
-            if data_path.exists():
+            if allow_cache and data_path.exists():
                 payload = json.loads(data_path.read_text())
                 return _extract_json_prefix_list(payload)
-            raise GeneratorError("304 received but cache is missing")
+            raise GeneratorError("304 received but cache is missing or disallowed")
         if resp.status_code != 200:
-            if allow_cache and data_path.exists():
+            if allow_stale_cache and data_path.exists():
+                _mark_stale_cache_used("non_200", resource.url, resp.status_code)
                 payload = json.loads(data_path.read_text())
                 return _extract_json_prefix_list(payload)
             raise GeneratorError(f"non-200 from {resource.url}: {resp.status_code}")
@@ -365,17 +405,19 @@ def fetch_prefixes_for_url(
         try:
             resp = _request_with_retries(resource.url, headers=headers)
         except GeneratorError as exc:
-            if allow_cache and data_path.exists():
+            if allow_stale_cache and data_path.exists():
+                _mark_stale_cache_used("timeout", resource.url)
                 payload = json.loads(data_path.read_text())
                 return _extract_google_cloud_prefixes(payload)
             raise exc
         if resp.status_code == 304:
-            if data_path.exists():
+            if allow_cache and data_path.exists():
                 payload = json.loads(data_path.read_text())
                 return _extract_google_cloud_prefixes(payload)
-            raise GeneratorError("304 received but cache is missing")
+            raise GeneratorError("304 received but cache is missing or disallowed")
         if resp.status_code != 200:
-            if allow_cache and data_path.exists():
+            if allow_stale_cache and data_path.exists():
+                _mark_stale_cache_used("non_200", resource.url, resp.status_code)
                 payload = json.loads(data_path.read_text())
                 return _extract_google_cloud_prefixes(payload)
             raise GeneratorError(f"non-200 from {resource.url}: {resp.status_code}")
@@ -395,17 +437,19 @@ def fetch_prefixes_for_url(
         try:
             resp = _request_with_retries(resource.url, headers=headers)
         except GeneratorError as exc:
-            if allow_cache and data_path.exists():
+            if allow_stale_cache and data_path.exists():
+                _mark_stale_cache_used("timeout", resource.url)
                 payload = json.loads(data_path.read_text())
                 return _extract_fastly_prefixes(payload)
             raise exc
         if resp.status_code == 304:
-            if data_path.exists():
+            if allow_cache and data_path.exists():
                 payload = json.loads(data_path.read_text())
                 return _extract_fastly_prefixes(payload)
-            raise GeneratorError("304 received but cache is missing")
+            raise GeneratorError("304 received but cache is missing or disallowed")
         if resp.status_code != 200:
-            if allow_cache and data_path.exists():
+            if allow_stale_cache and data_path.exists():
+                _mark_stale_cache_used("non_200", resource.url, resp.status_code)
                 payload = json.loads(data_path.read_text())
                 return _extract_fastly_prefixes(payload)
             raise GeneratorError(f"non-200 from {resource.url}: {resp.status_code}")
@@ -468,7 +512,12 @@ def _self_check_rsc(resource: ResourceConfig, contents: str) -> None:
         raise GeneratorError("self-check failed: count header mismatch")
 
 
-def generate_resource(resource_id: str, base_dir: Path, allow_cache: bool = False) -> Path:
+def generate_resource(
+    resource_id: str,
+    base_dir: Path,
+    allow_cache: bool = False,
+    allow_stale_cache: bool = False,
+) -> Path:
     resources_dir = base_dir / "resources"
     dist_dir = base_dir / "dist"
     dist_dir.mkdir(parents=True, exist_ok=True)
@@ -488,7 +537,7 @@ def generate_resource(resource_id: str, base_dir: Path, allow_cache: bool = Fals
         for asn in resource.asns:
             all_prefixes.extend(fetch_prefixes_for_asn(asn))
     else:
-        all_prefixes.extend(fetch_prefixes_for_url(resource, base_dir, allow_cache))
+        all_prefixes.extend(fetch_prefixes_for_url(resource, base_dir, allow_cache, allow_stale_cache))
 
     networks = _dedup_sort(_normalize_ipv4(all_prefixes))
     contents = _render_rsc(resource, networks)
@@ -510,7 +559,11 @@ def generate_resource(resource_id: str, base_dir: Path, allow_cache: bool = Fals
     return final_path
 
 
-def generate_all(base_dir: Path, allow_cache: bool = False) -> List[Path]:
+def generate_all(
+    base_dir: Path,
+    allow_cache: bool = False,
+    allow_stale_cache: bool = False,
+) -> List[Path]:
     resources_dir = base_dir / "resources"
     if not resources_dir.exists():
         raise GeneratorError("resources directory not found")
@@ -518,6 +571,6 @@ def generate_all(base_dir: Path, allow_cache: bool = False) -> List[Path]:
     results = []
     for path in sorted(resources_dir.glob("*.yaml")):
         resource = load_resource_config(path)
-        results.append(generate_resource(resource.resource_id, base_dir, allow_cache))
+        results.append(generate_resource(resource.resource_id, base_dir, allow_cache, allow_stale_cache))
 
     return results
