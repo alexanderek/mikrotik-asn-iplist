@@ -35,7 +35,7 @@ jobs:
         run: git pull --rebase
 
       - name: Run tests
-        run: pytest
+        run: PYTHONPATH=. pytest -q
 
       - name: Generate dist
         run: python -m generator generate --all --collapse=shadowed
