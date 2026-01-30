@@ -35,6 +35,12 @@ Automated generation of MikroTik RouterOS v7.x firewall address-list entries fro
 - Format: JSON addresses[] (IPv4 only; ignore ipv6_addresses).
 - Parsing: fail-hard on malformed/empty result.
 
+## Loader logging
+
+- Example start: `iplist: event=start scope=EU list=blacklist_eu resources_count=1 runId=2026-01-30 15:00:00`
+- Example fetch: `iplist: event=fetch scope=EU list=blacklist_eu resource=cloudflare url=... runId=...`
+- Example import_ok: `iplist: event=import_ok scope=EU list=blacklist_eu resource=cloudflare bytes=1234 total=15 runId=...`
+
 ## Quick start
 
 ```bash
