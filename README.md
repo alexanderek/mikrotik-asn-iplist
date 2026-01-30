@@ -11,6 +11,7 @@ Automated generation of MikroTik RouterOS v7.x firewall address-list entries fro
 - Use `routeros/loader_eu.rsc` and `routeros/loader_ru.rsc`.
 - Policy is managed by the `resources` list inside each loader.
 - Each resource maps to a single `dist/<resource>.rsc`.
+- To enable a provider, add its `resource_id` to the resources list in the desired loader (EU/RU). By default loaders can be shipped with empty lists.
 
 ## Migration
 

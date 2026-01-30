@@ -2,7 +2,7 @@
 # Update URL after repository publish.
 
 :global AddressList "blacklist_ru"
-:global resources { cloudflare; digitalocean; hetzner; ovh; oracle; aws; googlecloud; fastly; akamai_us; akamai_pl; cdn77; contabo; scaleway; constant; }
+:global resources { }
 
 :if ([:len $resources] = 0) do={
   :log info "iplist: no resources configured for RU"
