@@ -1,7 +1,7 @@
 # iplist-rsc v1
 # resource=oracle
-# generated=2026-02-01T21:19:32.709969Z
-# count=1950
+# generated=2026-02-03T21:30:13.555269Z
+# count=1955
 
 :global AddressList
 /ip/firewall/address-list add list=$AddressList address=5.226.187.0/24 comment="iplist:auto:oracle"
@@ -1735,7 +1735,10 @@
 /ip/firewall/address-list add list=$AddressList address=173.254.112.0/21 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=174.137.118.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=174.137.119.0/24 comment="iplist:auto:oracle"
+/ip/firewall/address-list add list=$AddressList address=176.23.131.0/24 comment="iplist:auto:oracle"
+/ip/firewall/address-list add list=$AddressList address=176.23.132.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=176.53.156.0/24 comment="iplist:auto:oracle"
+/ip/firewall/address-list add list=$AddressList address=177.73.64.0/22 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=185.83.202.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=185.125.42.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=185.134.116.0/24 comment="iplist:auto:oracle"
@@ -1882,6 +1885,8 @@
 /ip/firewall/address-list add list=$AddressList address=203.149.202.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=204.152.64.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=204.155.245.0/24 comment="iplist:auto:oracle"
+/ip/firewall/address-list add list=$AddressList address=204.155.246.0/24 comment="iplist:auto:oracle"
+/ip/firewall/address-list add list=$AddressList address=204.155.249.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=204.155.253.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=204.155.255.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=204.216.104.0/21 comment="iplist:auto:oracle"
