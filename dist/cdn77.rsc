@@ -1,7 +1,7 @@
 # iplist-rsc v1
 # resource=cdn77
-# generated=2026-02-04T21:28:27.167668Z
-# count=381
+# generated=2026-02-06T21:26:30.167450Z
+# count=386
 
 :global AddressList
 /ip/firewall/address-list add list=$AddressList address=37.19.194.0/24 comment="iplist:auto:cdn77"
@@ -170,6 +170,7 @@
 /ip/firewall/address-list add list=$AddressList address=89.222.124.0/24 comment="iplist:auto:cdn77"
 /ip/firewall/address-list add list=$AddressList address=89.222.125.0/24 comment="iplist:auto:cdn77"
 /ip/firewall/address-list add list=$AddressList address=89.222.126.0/24 comment="iplist:auto:cdn77"
+/ip/firewall/address-list add list=$AddressList address=89.222.127.0/24 comment="iplist:auto:cdn77"
 /ip/firewall/address-list add list=$AddressList address=95.173.192.0/24 comment="iplist:auto:cdn77"
 /ip/firewall/address-list add list=$AddressList address=95.173.197.0/24 comment="iplist:auto:cdn77"
 /ip/firewall/address-list add list=$AddressList address=95.173.199.0/24 comment="iplist:auto:cdn77"
@@ -254,6 +255,10 @@
 /ip/firewall/address-list add list=$AddressList address=152.233.42.0/24 comment="iplist:auto:cdn77"
 /ip/firewall/address-list add list=$AddressList address=152.233.44.0/24 comment="iplist:auto:cdn77"
 /ip/firewall/address-list add list=$AddressList address=152.233.46.0/23 comment="iplist:auto:cdn77"
+/ip/firewall/address-list add list=$AddressList address=152.233.52.0/24 comment="iplist:auto:cdn77"
+/ip/firewall/address-list add list=$AddressList address=152.233.100.0/24 comment="iplist:auto:cdn77"
+/ip/firewall/address-list add list=$AddressList address=152.233.101.0/24 comment="iplist:auto:cdn77"
+/ip/firewall/address-list add list=$AddressList address=152.233.120.0/24 comment="iplist:auto:cdn77"
 /ip/firewall/address-list add list=$AddressList address=152.233.123.0/24 comment="iplist:auto:cdn77"
 /ip/firewall/address-list add list=$AddressList address=152.233.125.0/24 comment="iplist:auto:cdn77"
 /ip/firewall/address-list add list=$AddressList address=156.146.33.0/24 comment="iplist:auto:cdn77"
