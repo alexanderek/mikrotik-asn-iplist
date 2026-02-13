@@ -1,6 +1,6 @@
 # iplist-rsc v1
 # resource=cdn77
-# generated=2026-02-12T21:29:22.985799Z
+# generated=2026-02-13T21:30:39.913997Z
 # count=388
 
 :global AddressList
