@@ -1,6 +1,6 @@
 # iplist-rsc v1
 # resource=ovh
-# generated=2026-02-15T21:20:21.325114Z
+# generated=2026-02-16T21:25:11.825100Z
 # count=612
 
 :global AddressList
@@ -152,7 +152,6 @@
 /ip/firewall/address-list add list=$AddressList address=66.92.11.0/24 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=66.92.25.0/24 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=66.92.168.0/24 comment="iplist:auto:ovh"
-/ip/firewall/address-list add list=$AddressList address=66.93.50.0/24 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=66.179.22.0/24 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=66.179.218.0/23 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=67.63.54.0/24 comment="iplist:auto:ovh"
@@ -248,7 +247,6 @@
 /ip/firewall/address-list add list=$AddressList address=82.152.240.0/24 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=82.152.243.0/24 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=82.153.205.0/24 comment="iplist:auto:ovh"
-/ip/firewall/address-list add list=$AddressList address=82.153.217.0/24 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=82.163.23.0/24 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=83.136.214.0/23 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=83.143.16.0/21 comment="iplist:auto:ovh"
@@ -440,6 +438,7 @@
 /ip/firewall/address-list add list=$AddressList address=155.117.5.0/24 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=155.117.212.0/23 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=155.117.233.0/24 comment="iplist:auto:ovh"
+/ip/firewall/address-list add list=$AddressList address=155.117.234.0/24 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=157.254.30.0/24 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=158.69.0.0/16 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=158.94.170.0/24 comment="iplist:auto:ovh"
@@ -586,6 +585,7 @@
 /ip/firewall/address-list add list=$AddressList address=206.206.126.0/24 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=207.166.205.0/24 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=207.166.206.0/24 comment="iplist:auto:ovh"
+/ip/firewall/address-list add list=$AddressList address=207.180.25.0/24 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=207.244.209.0/24 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=209.71.36.0/24 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=209.101.164.0/24 comment="iplist:auto:ovh"

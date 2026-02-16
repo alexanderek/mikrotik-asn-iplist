@@ -1,7 +1,7 @@
 # iplist-rsc v1
 # resource=hetzner
-# generated=2026-02-15T21:20:19.936567Z
-# count=83
+# generated=2026-02-16T21:25:08.327607Z
+# count=84
 
 :global AddressList
 /ip/firewall/address-list add list=$AddressList address=5.9.0.0/16 comment="iplist:auto:hetzner"
@@ -84,6 +84,7 @@
 /ip/firewall/address-list add list=$AddressList address=197.242.84.0/22 comment="iplist:auto:hetzner"
 /ip/firewall/address-list add list=$AddressList address=201.131.3.0/24 comment="iplist:auto:hetzner"
 /ip/firewall/address-list add list=$AddressList address=204.29.146.0/24 comment="iplist:auto:hetzner"
+/ip/firewall/address-list add list=$AddressList address=204.168.128.0/17 comment="iplist:auto:hetzner"
 /ip/firewall/address-list add list=$AddressList address=213.133.96.0/19 comment="iplist:auto:hetzner"
 /ip/firewall/address-list add list=$AddressList address=213.239.192.0/18 comment="iplist:auto:hetzner"
 /ip/firewall/address-list add list=$AddressList address=216.55.108.0/22 comment="iplist:auto:hetzner"
