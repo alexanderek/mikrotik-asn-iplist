@@ -2,6 +2,28 @@
 
 IPv4 address-list files for MikroTik RouterOS v7. Use the loader scripts to fetch and import lists from `dist/`.
 
+2) dist/
+--------
+Готовые артефакты.
+Каждый файл:
+- dist/<resource>.rsc
+- содержит служебный header-комментарий (sentinel):
+  - # iplist-rsc v1
+  - # resource=<resource>
+  - # generated=<timestamp>
+  - # count=<n>
+- содержит строку:
+  :global AddressList
+- содержит ТОЛЬКО команды add
+- не содержит remove
+- использует comment вида:
+  iplist:auto:<resource>
+
+Header используется loader’ами как минимальная валидация корректности файла
+(защита от пустого fetch / HTML / случайного мусора).
+
+dist — это publish-артефакт, а не место для логики.
+
 ## What is this
 
 - `dist/*.rsc` — ready-to-import address-list files (one resource per file).
