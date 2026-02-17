@@ -1,4 +1,4 @@
-# MikroTik_ASN_IPList
+# mikrotik-asn-iplist
 
 IPv4 address-list files for MikroTik RouterOS v7. Use the loader scripts to fetch and import lists from `dist/`.
 

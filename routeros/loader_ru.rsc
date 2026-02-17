@@ -13,7 +13,7 @@
   :return
 }
 
-:local baseUrl "https://raw.githubusercontent.com/alexanderek/MikroTik_ASN_IPList/main/dist"
+:local baseUrl "https://raw.githubusercontent.com/alexanderek/mikrotik-asn-iplist/main/dist"
 :local minBytes 200
 
 :log info ("iplist[RU]: start list=" . $listName . " resources=" . [:len $resources])
