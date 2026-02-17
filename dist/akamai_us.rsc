@@ -1,7 +1,7 @@
 # iplist-rsc v1
 # resource=akamai_us
-# generated=2026-02-16T21:25:03.980139Z
-# count=2945
+# generated=2026-02-17T21:31:18.915934Z
+# count=2934
 
 :global AddressList
 /ip/firewall/address-list add list=$AddressList address=2.16.12.0/23 comment="iplist:auto:akamai_us"
@@ -401,7 +401,6 @@
 /ip/firewall/address-list add list=$AddressList address=23.32.208.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.32.212.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.32.224.0/22 comment="iplist:auto:akamai_us"
-/ip/firewall/address-list add list=$AddressList address=23.32.228.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.32.242.0/23 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.32.250.0/23 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.32.252.0/22 comment="iplist:auto:akamai_us"
@@ -586,7 +585,6 @@
 /ip/firewall/address-list add list=$AddressList address=23.40.108.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.40.112.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.40.136.0/22 comment="iplist:auto:akamai_us"
-/ip/firewall/address-list add list=$AddressList address=23.40.140.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.40.152.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.40.156.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.40.160.0/21 comment="iplist:auto:akamai_us"
@@ -1269,7 +1267,6 @@
 /ip/firewall/address-list add list=$AddressList address=23.193.64.0/19 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.193.100.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.193.108.0/22 comment="iplist:auto:akamai_us"
-/ip/firewall/address-list add list=$AddressList address=23.193.120.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.193.124.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.193.128.0/19 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.193.166.0/23 comment="iplist:auto:akamai_us"
@@ -1329,7 +1326,6 @@
 /ip/firewall/address-list add list=$AddressList address=23.196.46.0/23 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.196.48.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.196.52.0/22 comment="iplist:auto:akamai_us"
-/ip/firewall/address-list add list=$AddressList address=23.196.56.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.196.60.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.196.72.0/21 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.196.80.0/20 comment="iplist:auto:akamai_us"
@@ -1596,7 +1592,6 @@
 /ip/firewall/address-list add list=$AddressList address=23.206.190.0/23 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.206.200.0/23 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.206.208.0/22 comment="iplist:auto:akamai_us"
-/ip/firewall/address-list add list=$AddressList address=23.206.216.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.206.220.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.206.234.0/23 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.206.236.0/23 comment="iplist:auto:akamai_us"
@@ -1715,7 +1710,6 @@
 /ip/firewall/address-list add list=$AddressList address=23.211.184.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.211.188.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.211.196.0/22 comment="iplist:auto:akamai_us"
-/ip/firewall/address-list add list=$AddressList address=23.211.200.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.211.204.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.211.208.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.211.212.0/22 comment="iplist:auto:akamai_us"
@@ -1735,7 +1729,6 @@
 /ip/firewall/address-list add list=$AddressList address=23.212.68.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.212.72.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.212.76.0/22 comment="iplist:auto:akamai_us"
-/ip/firewall/address-list add list=$AddressList address=23.212.80.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.212.84.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.212.88.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.212.108.0/23 comment="iplist:auto:akamai_us"
@@ -1918,7 +1911,6 @@
 /ip/firewall/address-list add list=$AddressList address=23.219.124.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.219.128.0/23 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.219.138.0/23 comment="iplist:auto:akamai_us"
-/ip/firewall/address-list add list=$AddressList address=23.219.148.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.219.164.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.219.186.0/23 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.219.192.0/22 comment="iplist:auto:akamai_us"
@@ -2017,7 +2009,6 @@
 /ip/firewall/address-list add list=$AddressList address=23.223.128.0/20 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.223.160.0/19 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.223.196.0/23 comment="iplist:auto:akamai_us"
-/ip/firewall/address-list add list=$AddressList address=23.223.204.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.223.212.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.223.220.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=23.223.224.0/22 comment="iplist:auto:akamai_us"
@@ -2519,7 +2510,6 @@
 /ip/firewall/address-list add list=$AddressList address=104.116.172.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=104.117.72.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=104.117.184.0/22 comment="iplist:auto:akamai_us"
-/ip/firewall/address-list add list=$AddressList address=104.117.188.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=104.119.96.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=104.119.100.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=104.119.104.0/22 comment="iplist:auto:akamai_us"
@@ -2883,7 +2873,6 @@
 /ip/firewall/address-list add list=$AddressList address=184.31.128.0/19 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=184.31.160.0/20 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=184.31.176.0/20 comment="iplist:auto:akamai_us"
-/ip/firewall/address-list add list=$AddressList address=184.31.192.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=184.31.204.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=184.31.208.0/20 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=184.31.224.0/22 comment="iplist:auto:akamai_us"

@@ -1,7 +1,7 @@
 # iplist-rsc v1
 # resource=ovh
-# generated=2026-02-16T21:25:11.825100Z
-# count=612
+# generated=2026-02-17T21:31:28.218254Z
+# count=611
 
 :global AddressList
 /ip/firewall/address-list add list=$AddressList address=5.39.0.0/17 comment="iplist:auto:ovh"
@@ -272,7 +272,6 @@
 /ip/firewall/address-list add list=$AddressList address=91.199.32.0/24 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=91.213.192.0/24 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=91.224.117.0/24 comment="iplist:auto:ovh"
-/ip/firewall/address-list add list=$AddressList address=91.235.205.0/24 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=91.246.38.0/24 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=92.62.117.0/24 comment="iplist:auto:ovh"
 /ip/firewall/address-list add list=$AddressList address=92.113.13.0/24 comment="iplist:auto:ovh"
