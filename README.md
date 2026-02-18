@@ -2,28 +2,6 @@
 
 IPv4 address-list files for MikroTik RouterOS v7. Use the loader scripts to fetch and import lists from `dist/`.
 
-2) dist/
---------
-Готовые артефакты.
-Каждый файл:
-- dist/<resource>.rsc
-- содержит служебный header-комментарий (sentinel):
-  - # iplist-rsc v1
-  - # resource=<resource>
-  - # generated=<timestamp>
-  - # count=<n>
-- содержит строку:
-  :global AddressList
-- содержит ТОЛЬКО команды add
-- не содержит remove
-- использует comment вида:
-  iplist:auto:<resource>
-
-Header используется loader’ами как минимальная валидация корректности файла
-(защита от пустого fetch / HTML / случайного мусора).
-
-dist — это publish-артефакт, а не место для логики.
-
 ## What is this
 
 - `dist/*.rsc` — ready-to-import address-list files (one resource per file).
@@ -43,7 +21,7 @@ Example scheduler:
 add name=iplist_auto_ru interval=1w on-event="/system script run loader_ru"
 ```
 
-## How loaders work (high-level)
+## How loaders work
 
 - Fetch `dist/<resource>.rsc` from GitHub raw.
 - Validate file and metadata.
@@ -72,26 +50,9 @@ Each resource maps to exactly one `dist/<resource>.rsc`.
 - ASN/BGP sources are used only when no official feed exists or coverage is insufficient.
 - ASN/BGP is fallback, not default.
 
-## Guarantees & limitations
+## Limitations
 
 - IPv4 only.
 - Fail-hard on bad source data (non-200, malformed, empty) — old lists stay in place.
 - Default `collapse=shadowed`: removes only fully-covered subnets (no aggressive aggregation).
 - One resource = one `.rsc` file; loaders decide which resources to apply.
-
-## For developers (optional)
-
-- Generator is the source of truth for `dist/`.
-- Cache policy:
-  - `--allow-cache` uses cache **only** on HTTP 304.
-  - Stale cache requires `--allow-stale-cache` and is explicitly logged.
-- Collapse mode:
-  - `--collapse=shadowed` (default) or `--collapse=none`.
-
-Common commands:
-
-```bash
-python -m generator generate --all --allow-cache
-python -m generator generate --all --collapse=none --allow-cache
-pytest -q
-```
