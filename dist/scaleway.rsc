@@ -1,7 +1,7 @@
 # iplist-rsc v1
 # resource=scaleway
-# generated=2026-02-25T21:31:27.392858Z
-# count=17
+# generated=2026-02-26T21:28:33.128945Z
+# count=18
 
 :global AddressList
 /ip/firewall/address-list add list=$AddressList address=51.15.0.0/16 comment="iplist:auto:scaleway"
@@ -15,6 +15,7 @@
 /ip/firewall/address-list add list=$AddressList address=151.115.176.0/20 comment="iplist:auto:scaleway"
 /ip/firewall/address-list add list=$AddressList address=151.115.192.0/24 comment="iplist:auto:scaleway"
 /ip/firewall/address-list add list=$AddressList address=151.115.193.0/24 comment="iplist:auto:scaleway"
+/ip/firewall/address-list add list=$AddressList address=151.115.208.0/20 comment="iplist:auto:scaleway"
 /ip/firewall/address-list add list=$AddressList address=163.172.0.0/16 comment="iplist:auto:scaleway"
 /ip/firewall/address-list add list=$AddressList address=195.154.0.0/16 comment="iplist:auto:scaleway"
 /ip/firewall/address-list add list=$AddressList address=212.47.224.0/19 comment="iplist:auto:scaleway"

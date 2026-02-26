@@ -1,7 +1,7 @@
 # iplist-rsc v1
 # resource=constant
-# generated=2026-02-25T21:31:22.300699Z
-# count=1590
+# generated=2026-02-26T21:28:29.471140Z
+# count=1589
 
 :global AddressList
 /ip/firewall/address-list add list=$AddressList address=5.102.112.0/24 comment="iplist:auto:constant"
@@ -554,7 +554,6 @@
 /ip/firewall/address-list add list=$AddressList address=89.213.169.0/24 comment="iplist:auto:constant"
 /ip/firewall/address-list add list=$AddressList address=89.213.176.0/24 comment="iplist:auto:constant"
 /ip/firewall/address-list add list=$AddressList address=91.90.162.0/24 comment="iplist:auto:constant"
-/ip/firewall/address-list add list=$AddressList address=91.124.126.0/24 comment="iplist:auto:constant"
 /ip/firewall/address-list add list=$AddressList address=91.206.48.0/24 comment="iplist:auto:constant"
 /ip/firewall/address-list add list=$AddressList address=91.208.61.0/24 comment="iplist:auto:constant"
 /ip/firewall/address-list add list=$AddressList address=91.216.138.0/24 comment="iplist:auto:constant"
