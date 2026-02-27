@@ -1,6 +1,6 @@
 # iplist-rsc v1
 # resource=akamai_pl
-# generated=2026-02-26T21:28:27.260363Z
+# generated=2026-02-27T21:24:38.648804Z
 # count=132
 
 :global AddressList

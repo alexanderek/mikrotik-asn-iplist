@@ -1,7 +1,7 @@
 # iplist-rsc v1
 # resource=oracle
-# generated=2026-02-26T21:28:32.196552Z
-# count=2022
+# generated=2026-02-27T21:24:43.268591Z
+# count=2026
 
 :global AddressList
 /ip/firewall/address-list add list=$AddressList address=5.226.187.0/24 comment="iplist:auto:oracle"
@@ -1871,7 +1871,10 @@
 /ip/firewall/address-list add list=$AddressList address=192.33.249.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=192.33.250.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=192.35.250.0/24 comment="iplist:auto:oracle"
+/ip/firewall/address-list add list=$AddressList address=192.70.178.0/24 comment="iplist:auto:oracle"
+/ip/firewall/address-list add list=$AddressList address=192.84.120.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=192.86.158.0/24 comment="iplist:auto:oracle"
+/ip/firewall/address-list add list=$AddressList address=192.94.214.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=192.94.219.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=192.152.161.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=192.153.124.0/24 comment="iplist:auto:oracle"
@@ -1924,6 +1927,7 @@
 /ip/firewall/address-list add list=$AddressList address=195.160.239.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=196.15.22.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=198.49.100.0/24 comment="iplist:auto:oracle"
+/ip/firewall/address-list add list=$AddressList address=198.51.22.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=198.57.128.0/19 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=198.57.224.0/19 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=198.181.54.0/24 comment="iplist:auto:oracle"
