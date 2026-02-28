@@ -1,7 +1,7 @@
 # iplist-rsc v1
 # resource=akamai_us
-# generated=2026-02-27T21:24:39.251700Z
-# count=2931
+# generated=2026-02-28T21:16:53.934002Z
+# count=2930
 
 :global AddressList
 /ip/firewall/address-list add list=$AddressList address=2.16.12.0/23 comment="iplist:auto:akamai_us"
@@ -2921,7 +2921,6 @@
 /ip/firewall/address-list add list=$AddressList address=184.86.0.0/20 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=184.86.100.0/23 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=184.86.104.0/22 comment="iplist:auto:akamai_us"
-/ip/firewall/address-list add list=$AddressList address=184.86.120.0/22 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=184.86.144.0/20 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=184.86.160.0/20 comment="iplist:auto:akamai_us"
 /ip/firewall/address-list add list=$AddressList address=184.86.224.0/22 comment="iplist:auto:akamai_us"
