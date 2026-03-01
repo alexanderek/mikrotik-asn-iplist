@@ -1,7 +1,7 @@
 # iplist-rsc v1
 # resource=googlecloud
-# generated=2026-02-28T21:16:58.368555Z
-# count=836
+# generated=2026-03-01T21:18:41.969918Z
+# count=848
 
 :global AddressList
 /ip/firewall/address-list add list=$AddressList address=8.34.208.0/23 comment="iplist:auto:googlecloud"
@@ -20,6 +20,7 @@
 /ip/firewall/address-list add list=$AddressList address=8.229.0.0/16 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=8.230.0.0/19 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=8.230.32.0/19 comment="iplist:auto:googlecloud"
+/ip/firewall/address-list add list=$AddressList address=8.230.64.0/19 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=23.236.48.0/20 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=23.251.128.0/20 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=23.251.144.0/20 comment="iplist:auto:googlecloud"
@@ -67,6 +68,7 @@
 /ip/firewall/address-list add list=$AddressList address=34.4.64.0/20 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=34.4.80.0/20 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=34.4.96.0/22 comment="iplist:auto:googlecloud"
+/ip/firewall/address-list add list=$AddressList address=34.4.102.0/23 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=34.4.128.0/18 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=34.6.0.0/15 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=34.8.0.0/16 comment="iplist:auto:googlecloud"
@@ -508,9 +510,14 @@
 /ip/firewall/address-list add list=$AddressList address=34.183.33.0/24 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=34.183.34.0/23 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=34.183.36.0/24 comment="iplist:auto:googlecloud"
+/ip/firewall/address-list add list=$AddressList address=34.183.37.0/24 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=34.183.40.0/21 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=34.183.50.0/23 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=34.183.52.0/22 comment="iplist:auto:googlecloud"
+/ip/firewall/address-list add list=$AddressList address=34.183.56.0/23 comment="iplist:auto:googlecloud"
+/ip/firewall/address-list add list=$AddressList address=34.183.58.0/24 comment="iplist:auto:googlecloud"
+/ip/firewall/address-list add list=$AddressList address=34.183.59.0/24 comment="iplist:auto:googlecloud"
+/ip/firewall/address-list add list=$AddressList address=34.183.60.0/24 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=34.184.0.0/24 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=34.184.1.0/24 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=34.184.2.0/24 comment="iplist:auto:googlecloud"
@@ -532,6 +539,11 @@
 /ip/firewall/address-list add list=$AddressList address=34.184.40.0/21 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=34.184.48.0/22 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=34.184.52.0/23 comment="iplist:auto:googlecloud"
+/ip/firewall/address-list add list=$AddressList address=34.184.54.0/24 comment="iplist:auto:googlecloud"
+/ip/firewall/address-list add list=$AddressList address=34.184.55.0/24 comment="iplist:auto:googlecloud"
+/ip/firewall/address-list add list=$AddressList address=34.184.56.0/23 comment="iplist:auto:googlecloud"
+/ip/firewall/address-list add list=$AddressList address=34.184.58.0/24 comment="iplist:auto:googlecloud"
+/ip/firewall/address-list add list=$AddressList address=34.184.59.0/24 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=34.185.128.0/17 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=34.186.0.0/19 comment="iplist:auto:googlecloud"
 /ip/firewall/address-list add list=$AddressList address=34.186.32.0/19 comment="iplist:auto:googlecloud"
