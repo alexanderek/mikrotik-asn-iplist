@@ -1,6 +1,6 @@
 # iplist-rsc v1
 # resource=cloudflare
-# generated=2026-03-01T21:18:40.411194Z
+# generated=2026-03-02T21:28:42.146380Z
 # count=15
 
 :global AddressList
