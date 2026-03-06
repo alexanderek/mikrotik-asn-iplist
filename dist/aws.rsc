@@ -1,7 +1,7 @@
 # iplist-rsc v1
 # resource=aws
-# generated=2026-03-05T21:29:59.178163Z
-# count=5057
+# generated=2026-03-06T21:25:34.642412Z
+# count=5062
 
 :global AddressList
 /ip/firewall/address-list add list=$AddressList address=1.178.1.0/24 comment="iplist:auto:aws"
@@ -45,8 +45,11 @@
 /ip/firewall/address-list add list=$AddressList address=1.178.101.0/24 comment="iplist:auto:aws"
 /ip/firewall/address-list add list=$AddressList address=1.178.102.0/24 comment="iplist:auto:aws"
 /ip/firewall/address-list add list=$AddressList address=1.178.103.0/24 comment="iplist:auto:aws"
+/ip/firewall/address-list add list=$AddressList address=1.178.172.0/23 comment="iplist:auto:aws"
 /ip/firewall/address-list add list=$AddressList address=1.178.174.0/24 comment="iplist:auto:aws"
 /ip/firewall/address-list add list=$AddressList address=1.179.2.0/23 comment="iplist:auto:aws"
+/ip/firewall/address-list add list=$AddressList address=1.179.14.0/23 comment="iplist:auto:aws"
+/ip/firewall/address-list add list=$AddressList address=1.179.60.0/23 comment="iplist:auto:aws"
 /ip/firewall/address-list add list=$AddressList address=3.0.0.0/15 comment="iplist:auto:aws"
 /ip/firewall/address-list add list=$AddressList address=3.2.0.0/24 comment="iplist:auto:aws"
 /ip/firewall/address-list add list=$AddressList address=3.2.1.0/24 comment="iplist:auto:aws"
@@ -457,6 +460,7 @@
 /ip/firewall/address-list add list=$AddressList address=15.129.31.0/24 comment="iplist:auto:aws"
 /ip/firewall/address-list add list=$AddressList address=15.129.32.0/23 comment="iplist:auto:aws"
 /ip/firewall/address-list add list=$AddressList address=15.129.34.0/23 comment="iplist:auto:aws"
+/ip/firewall/address-list add list=$AddressList address=15.129.36.0/23 comment="iplist:auto:aws"
 /ip/firewall/address-list add list=$AddressList address=15.134.0.0/16 comment="iplist:auto:aws"
 /ip/firewall/address-list add list=$AddressList address=15.135.0.0/16 comment="iplist:auto:aws"
 /ip/firewall/address-list add list=$AddressList address=15.143.0.0/16 comment="iplist:auto:aws"
@@ -1995,6 +1999,7 @@
 /ip/firewall/address-list add list=$AddressList address=51.72.0.0/15 comment="iplist:auto:aws"
 /ip/firewall/address-list add list=$AddressList address=51.74.0.0/20 comment="iplist:auto:aws"
 /ip/firewall/address-list add list=$AddressList address=51.74.16.0/24 comment="iplist:auto:aws"
+/ip/firewall/address-list add list=$AddressList address=51.74.17.0/24 comment="iplist:auto:aws"
 /ip/firewall/address-list add list=$AddressList address=51.84.0.0/16 comment="iplist:auto:aws"
 /ip/firewall/address-list add list=$AddressList address=51.85.0.0/16 comment="iplist:auto:aws"
 /ip/firewall/address-list add list=$AddressList address=51.86.0.0/15 comment="iplist:auto:aws"
