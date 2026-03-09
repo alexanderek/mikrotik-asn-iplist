@@ -1,6 +1,6 @@
 # iplist-rsc v1
 # resource=telegram
-# generated=2026-03-08T21:19:03.663417Z
+# generated=2026-03-09T21:28:15.709542Z
 # count=9
 
 :global AddressList
