@@ -1,6 +1,6 @@
 # iplist-rsc v1
 # resource=oracle
-# generated=2026-03-11T21:28:07.531379Z
+# generated=2026-03-12T21:28:45.981784Z
 # count=2049
 
 :global AddressList
@@ -1979,6 +1979,7 @@
 /ip/firewall/address-list add list=$AddressList address=204.155.246.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=204.155.249.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=204.155.250.0/24 comment="iplist:auto:oracle"
+/ip/firewall/address-list add list=$AddressList address=204.155.251.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=204.155.253.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=204.155.254.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=204.155.255.0/24 comment="iplist:auto:oracle"
@@ -2025,7 +2026,6 @@
 /ip/firewall/address-list add list=$AddressList address=208.76.125.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=208.76.126.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=208.76.127.0/24 comment="iplist:auto:oracle"
-/ip/firewall/address-list add list=$AddressList address=208.78.68.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=209.17.48.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=209.17.49.0/24 comment="iplist:auto:oracle"
 /ip/firewall/address-list add list=$AddressList address=209.17.50.0/24 comment="iplist:auto:oracle"
