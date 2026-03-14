@@ -1,7 +1,7 @@
 # iplist-rsc v1
 # resource=aws
-# generated=2026-03-13T21:28:47.155573Z
-# count=5063
+# generated=2026-03-14T21:21:47.008743Z
+# count=5064
 
 :global AddressList
 /ip/firewall/address-list add list=$AddressList address=1.178.1.0/24 comment="iplist:auto:aws"
@@ -1856,6 +1856,7 @@
 /ip/firewall/address-list add list=$AddressList address=35.97.192.0/24 comment="iplist:auto:aws"
 /ip/firewall/address-list add list=$AddressList address=35.97.193.0/24 comment="iplist:auto:aws"
 /ip/firewall/address-list add list=$AddressList address=35.97.194.0/24 comment="iplist:auto:aws"
+/ip/firewall/address-list add list=$AddressList address=35.97.208.0/20 comment="iplist:auto:aws"
 /ip/firewall/address-list add list=$AddressList address=35.111.128.0/22 comment="iplist:auto:aws"
 /ip/firewall/address-list add list=$AddressList address=35.111.132.0/22 comment="iplist:auto:aws"
 /ip/firewall/address-list add list=$AddressList address=35.111.136.0/22 comment="iplist:auto:aws"
