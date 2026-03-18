@@ -1,7 +1,7 @@
 # iplist-rsc v1
 # resource=digitalocean
-# generated=2026-03-17T21:33:06.832937Z
-# count=840
+# generated=2026-03-18T21:29:56.635448Z
+# count=843
 
 :global AddressList
 /ip/firewall/address-list add list=$AddressList address=5.101.96.0/21 comment="iplist:auto:digitalocean"
@@ -12,6 +12,7 @@
 /ip/firewall/address-list add list=$AddressList address=5.101.111.0/24 comment="iplist:auto:digitalocean"
 /ip/firewall/address-list add list=$AddressList address=24.144.64.0/22 comment="iplist:auto:digitalocean"
 /ip/firewall/address-list add list=$AddressList address=24.144.68.0/22 comment="iplist:auto:digitalocean"
+/ip/firewall/address-list add list=$AddressList address=24.144.72.0/24 comment="iplist:auto:digitalocean"
 /ip/firewall/address-list add list=$AddressList address=24.144.76.0/22 comment="iplist:auto:digitalocean"
 /ip/firewall/address-list add list=$AddressList address=24.144.80.0/20 comment="iplist:auto:digitalocean"
 /ip/firewall/address-list add list=$AddressList address=24.144.96.0/19 comment="iplist:auto:digitalocean"
@@ -644,8 +645,10 @@
 /ip/firewall/address-list add list=$AddressList address=165.245.144.0/22 comment="iplist:auto:digitalocean"
 /ip/firewall/address-list add list=$AddressList address=165.245.148.0/22 comment="iplist:auto:digitalocean"
 /ip/firewall/address-list add list=$AddressList address=165.245.152.0/22 comment="iplist:auto:digitalocean"
+/ip/firewall/address-list add list=$AddressList address=165.245.156.0/22 comment="iplist:auto:digitalocean"
 /ip/firewall/address-list add list=$AddressList address=165.245.160.0/20 comment="iplist:auto:digitalocean"
 /ip/firewall/address-list add list=$AddressList address=165.245.176.0/20 comment="iplist:auto:digitalocean"
+/ip/firewall/address-list add list=$AddressList address=165.245.192.0/21 comment="iplist:auto:digitalocean"
 /ip/firewall/address-list add list=$AddressList address=167.71.0.0/20 comment="iplist:auto:digitalocean"
 /ip/firewall/address-list add list=$AddressList address=167.71.16.0/20 comment="iplist:auto:digitalocean"
 /ip/firewall/address-list add list=$AddressList address=167.71.32.0/20 comment="iplist:auto:digitalocean"
