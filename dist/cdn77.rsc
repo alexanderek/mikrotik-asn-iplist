@@ -1,9 +1,10 @@
 # iplist-rsc v1
 # resource=cdn77
-# generated=2026-03-19T21:31:07.274296Z
-# count=395
+# generated=2026-03-20T21:25:48.102831Z
+# count=396
 
 :global AddressList
+/ip/firewall/address-list add list=$AddressList address=5.145.116.0/24 comment="iplist:auto:cdn77"
 /ip/firewall/address-list add list=$AddressList address=5.145.119.0/24 comment="iplist:auto:cdn77"
 /ip/firewall/address-list add list=$AddressList address=37.19.194.0/24 comment="iplist:auto:cdn77"
 /ip/firewall/address-list add list=$AddressList address=37.19.202.0/24 comment="iplist:auto:cdn77"
