@@ -1,6 +1,6 @@
 # iplist-rsc v1
 # resource=fastly
-# generated=2026-03-21T21:20:11.022783Z
+# generated=2026-03-22T21:21:26.315641Z
 # count=19
 
 :global AddressList
