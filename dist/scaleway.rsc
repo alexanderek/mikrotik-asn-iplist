@@ -1,6 +1,6 @@
 # iplist-rsc v1
 # resource=scaleway
-# generated=2026-03-24T21:33:46.686230Z
+# generated=2026-03-25T21:34:44.566162Z
 # count=18
 
 :global AddressList
